@@ -109,6 +109,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .btn-delete{background:rgba(255,46,46,0.15);color:#ff4444;margin-top:10px;padding:12px;border-radius:14px;border:none;width:100%;font-size:14px;cursor:pointer;font-weight:600;display:none}
 
 /* Leaflet popup override */
+.leaflet-control-layers{background:var(--card)!important;color:var(--text)!important;border:1px solid rgba(255,255,255,0.1)!important;border-radius:12px!important;padding:8px!important;font-family:'Inter',sans-serif!important;font-size:13px!important}
+.leaflet-control-layers label{color:var(--text)!important}
+.leaflet-control-layers-toggle{width:36px!important;height:36px!important}
 .leaflet-popup-content-wrapper{background:var(--card)!important;color:var(--text)!important;border-radius:14px!important;box-shadow:0 10px 30px rgba(0,0,0,0.4)!important}
 .leaflet-popup-tip{background:var(--card)!important}
 .popup-place{font-weight:700;font-size:15px}
@@ -222,9 +225,14 @@ document.querySelectorAll('.nav-tab').forEach(t=>t.addEventListener('click',()=>
 
 // Map
 const map=L.map('map',{zoomControl:false}).setView([25,10],3);
-const satellite=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19});
-const labels=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',{maxZoom:19});
-satellite.addTo(map);labels.addTo(map);
+const baseMaps={
+  'Standard':L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}),
+  'Satellite':L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19}),
+  'Terrain':L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:'© OpenTopoMap',maxZoom:17}),
+  'Dark':L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:19})
+};
+baseMaps['Standard'].addTo(map);
+L.control.layers(baseMaps,null,{position:'topright',collapsed:true}).addTo(map);
 L.control.zoom({position:'bottomright'}).addTo(map);
 
 const statusColors={visited:'#ff6b6b',lived:'#2ecc71',birthplace:'#feca57',transit:'#95a5a6',wishlist:'transparent'};
