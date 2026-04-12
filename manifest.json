@@ -1,9 +1,13 @@
 {
   "name": "JP's Travel World",
   "short_name": "JP Travel",
+  "description": "Born Explorer ♐ · Every place tells a story",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#1a1a2e",
-  "theme_color": "#1a1a2e",
-  "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>", "sizes": "any", "type": "image/svg+xml"}]
+  "background_color": "#0b0b1e",
+  "theme_color": "#0b0b1e",
+  "orientation": "portrait",
+  "icons": [
+    {"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>", "sizes": "any", "type": "image/svg+xml"}
+  ]
 }

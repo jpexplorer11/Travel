@@ -1,84 +1,46 @@
-# 🌍 JP's Travel World — Born Explorer ♐
+# 🌍 JP's Travel World
 
-A personal travel tracker PWA to map your journeys, wishlist future adventures, and share your travel stats.
+**Born Explorer ♐ · Every place tells a story**
 
-**🔗 Live:** [jpexplorer11.github.io/Travel](https://jpexplorer11.github.io/Travel/)
+This is my personal life map — a living journal of everywhere I've been, everywhere I've called home, and everywhere I dream of going. Every pin is a memory. Every path is a chapter.
 
----
-
-## Features
-
-- 🗺️ Interactive map with 4 styles (Standard, Satellite, Terrain, Dark)
-- 📍 Add places by tapping the map or searching by name (auto-locates)
-- 📸 Attach photos to each place
-- ⭐ Rate places (1-5 stars)
-- 📝 Add notes and memories
-
-### Place Types
-| Status | Description |
-|--------|-------------|
-| ✅ Visited | Places you've been to |
-| 🏠 Lived | Places you've called home |
-| 🎒 Birth Place | Where it all began |
-| 🚏 Transit | Passing through / layover |
-| 🔮 Wishlist | Future adventures |
-
-### Travel Modes
-✈️ Flight · 🚗 Own Car · 🚙 Rental · 🚆 Train · 🚌 Bus · 🚲 Cycle · 🚶 Walk · ⛴️ Boat
-
-### Stats Dashboard
-- Total places, countries, visits, wishlist count
-- Countries explored with place counts
-- Category breakdown (City, Nature, Beach, Mountain, Food, Work)
-- Travel mode chart (how you get around)
-- Place type breakdown
-- Recent adventures timeline
-
-### Sync Between Devices
-- **📤 Export** — Download your data as JSON
-- **📥 Import** — Load data on another device (merges without duplicates)
+## 🔗 [Open My Map](https://jpexplorer11.github.io/Travel/)
 
 ---
 
-## How to Use
+## How to Read the Map
 
-### On Desktop
-Open [jpexplorer11.github.io/Travel](https://jpexplorer11.github.io/Travel/) in any browser.
+- **Glowing golden pins** — Places I've called home
+- **Pink glow** — Where I was born
+- **Red pins** — Places I've visited
+- **Grey pins** — Just passing through
+- **Dashed circles** — Dream destinations, not yet visited
+- **Dotted line** — My journey path, connecting the dots of my life
 
-### On iPhone (Add to Home Screen)
-1. Open the link in **Safari**
-2. Tap the **Share** button (⬆️ at bottom)
-3. Tap **"Add to Home Screen"**
-4. Name it → tap **Add**
-5. Opens fullscreen like a native app!
+## What's Inside
 
-### Adding a Place
-1. Tap **+** button or tap anywhere on the map
-2. Type a city/country name — suggestions appear automatically
-3. Select status (Visited / Lived / Wishlist etc.)
-4. Choose travel mode, add notes, rating, photo
-5. Tap **Save**
+**🗺️ Map** — The world through my eyes. Tap any pin to see the story.
 
-### Editing / Deleting
-- **From Map:** Tap a pin → tap pin again → Edit form with Delete button
-- **From List:** Each card has ✏️ Edit and 🗑️ Delete buttons
+**⏳ Journey** — My travel insights:
+- Life chapters (where I've lived)
+- Countries explored
+- How I travel (flights, road trips, trains...)
+- Year-by-year timeline of adventures
 
-### Syncing Data Between Devices
-1. Go to **Stats** tab → **📤 Export Data**
-2. Send the `.json` file to your other device
-3. On the other device → **Stats** tab → **📥 Import Data**
+**📋 Places** — Every place in a card, with photos, memories, and ratings.
 
----
+## ✨ Memory Highlights
 
-## Tech
+Each place has a one-line "memory highlight" — the feeling, the moment, the thing that made it unforgettable.
 
-- Single HTML file (~25 KB)
-- Leaflet.js for maps
-- OpenStreetMap Nominatim for geocoding
-- Data stored in browser localStorage
-- No server, no database, no login
-- 100% free, 100% private
+## Privacy
+
+Everything stays on your device. No servers, no accounts, no tracking. Your memories are yours alone.
+
+## On Your Phone
+
+Open the link in Safari → Share → **Add to Home Screen**. It works like a native app.
 
 ---
 
-*Developed by JP · Sagittarian Wanderer · Born Explorer ♐*
+*A Sagittarian's map of the world — one adventure at a time* ♐
