@@ -165,7 +165,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   <div class="bar-chart" id="travelChart"></div>
   <div class="section-title">📌 Place Types</div>
   <div class="bar-chart" id="statusChart"></div>
-  <div class="section-title">⏳ Recent Adventures</div>
+  <div class="section-title">💾 Backup & Sync</div>
+  <div style="max-width:500px;margin:0 auto;display:flex;gap:10px">
+    <button id="btnExport" style="flex:1;padding:14px;border-radius:14px;border:none;background:var(--accent3);color:#000;font-weight:700;font-size:14px;cursor:pointer">📤 Export Data</button>
+    <label style="flex:1;padding:14px;border-radius:14px;border:none;background:var(--accent2);color:#000;font-weight:700;font-size:14px;cursor:pointer;text-align:center">📥 Import Data<input type="file" id="btnImport" accept=".json" style="display:none"></label>
+  </div>
+  <p style="max-width:500px;margin:10px auto;font-size:12px;color:var(--text2);text-align:center">Export on one device, import on another to sync your places</p>
   <div class="timeline-list" id="timeline"></div>
 </div>
 
@@ -376,6 +381,27 @@ function renderList(){
     setTimeout(()=>{map.invalidateSize();map.setView([p.lat,p.lng],12);markers[p.id]?.openPopup()},100);
   }));
 }
+
+// Export/Import
+document.getElementById('btnExport').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(places,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='jp-travel-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+});
+document.getElementById('btnImport').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>{
+    try{
+      const imported=JSON.parse(ev.target.result);
+      if(!Array.isArray(imported)){alert('Invalid file');return}
+      const existingIds=new Set(places.map(p=>p.id));
+      let added=0;
+      imported.forEach(p=>{if(!existingIds.has(p.id)){places.push(p);added++}});
+      save();renderMarkers();
+      alert(`Imported ${added} new place(s). ${imported.length-added} already existed.`);
+    }catch(e){alert('Error reading file')}
+  };r.readAsText(f);
+});
 
 renderMarkers();
 </script>
