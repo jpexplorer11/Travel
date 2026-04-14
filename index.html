@@ -1152,7 +1152,7 @@ function showPM(id){
   document.getElementById('pmOv').classList.add('on');
 }
 document.getElementById('pmEdit').onclick=()=>{document.getElementById('pmOv').classList.remove('on');if(pmId)openEdit(pmId)};
-document.getElementById('pmStory').onclick=()=>{document.getElementById('pmOv').classList.remove('on');if(pmId)openStory(P.findIndex(x=>x.id===pmId))};
+const pmStoryBtn=document.getElementById('pmStory');if(pmStoryBtn)pmStoryBtn.onclick=()=>{document.getElementById('pmOv').classList.remove('on');if(pmId)openStory(P.findIndex(x=>x.id===pmId))};
 
 // === STORY MODE ===
 let storyIdx=0,storyTimer=null;
@@ -1211,7 +1211,26 @@ document.getElementById('btnPlay').onclick=async()=>{
 };
 
 // === STORY MODE BUTTON ===
-document.getElementById('btnStory').onclick=()=>openStory(0);
+const stBtn=document.getElementById('btnStory');if(stBtn)stBtn.onclick=()=>openStory(0);
+
+// === EAST-WEST ===
+const geoBtn=document.getElementById('btnPlayGeo');if(geoBtn)geoBtn.onclick=async()=>{
+  const visited=[...P].filter(p=>p.status!=='wishlist'&&p.status!=='transit');
+  const byCountry={};visited.forEach(p=>{if(!byCountry[p.country]||p.rating>byCountry[p.country].rating)byCountry[p.country]=p});
+  const sorted=Object.values(byCountry).sort((a,b)=>b.lng-a.lng);
+  if(!sorted.length||!map)return;
+  const jo=document.getElementById('jo');jo.style.display='block';
+  jo.innerHTML=`<div id="joN" style="font-size:16px;font-weight:700"></div><div id="joM" style="font-size:12px;color:var(--text2);margin-top:2px"></div><button id="joStop" style="margin-top:8px;padding:6px 20px;border-radius:12px;border:none;background:rgba(255,50,50,0.2);color:#ff4444;font-size:12px;font-weight:700;cursor:pointer">⏹ Stop</button>`;
+  let stop=false;document.getElementById('joStop').onclick=()=>{stop=true};
+  for(const p of sorted){
+    if(stop)break;
+    document.getElementById('joN').textContent=flag(p.country)+' '+p.country+' — '+p.name;
+    document.getElementById('joM').textContent=p.memory||'';
+    map&&map.flyTo([p.lat,p.lng],6,{duration:2});
+    await new Promise(r=>setTimeout(r,3000));
+  }
+  jo.style.display='none';map&&map.flyTo([25,10],3,{duration:1});
+};
 
 // === RANDOM ===
 document.getElementById('btnRand').onclick=()=>{
@@ -1231,7 +1250,7 @@ iNm.oninput=()=>{clearTimeout(gT);const q=iNm.value.trim();if(q.length<2){gR.inn
 
 // === ADD/EDIT MODAL ===
 if(map)map.on('click',e=>openModal(e.latlng.lat,e.latlng.lng));
-document.getElementById('btnAdd').onclick=()=>openModal(map.getCenter().lat,map.getCenter().lng);
+document.getElementById('btnAdd').onclick=()=>openModal(map?map.getCenter().lat:50.77,map?map.getCenter().lng:6.08);
 document.getElementById('iSt').onchange=()=>{document.getElementById('dtToW').style.display=document.getElementById('iSt').value==='lived'?'':'none'};
 
 function openModal(lat,lng,p){
