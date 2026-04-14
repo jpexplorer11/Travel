@@ -210,6 +210,10 @@ body.light .nav{background:rgba(248,249,251,0.9)}
 /* Scroll progress bar */
 .scroll-prog{position:fixed;top:52px;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:999;width:0;transition:width .1s}
 
+/* Intro cards */
+.intro-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:14px;text-align:center;cursor:pointer;transition:all .25s;backdrop-filter:blur(10px)}
+.intro-card:hover,.intro-card:active{background:rgba(212,175,55,0.08);border-color:rgba(212,175,55,0.2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.2)}
+
 /* Milestone chips */
 .chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0;-webkit-overflow-scrolling:touch}
 .chip{padding:6px 14px;border-radius:20px;border:1px solid rgba(212,175,55,0.15);background:rgba(212,175,55,0.05);color:var(--text);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .25s;flex-shrink:0}
@@ -238,18 +242,24 @@ body.light .nav{background:rgba(248,249,251,0.9)}
 <body>
 
 <!-- INTRO -->
-<div class="intro" id="intro">
-  <div style="font-size:48px;opacity:0;animation:fadeUp .6s .1s forwards">🌍</div>
-  <h1 style="margin-top:12px">JP Explorer</h1>
-  <p class="tagline">20 Countries · 120+ Places · 45 Years<br>A Sagittarian's Journey Through Life ♐</p>
-  <div style="display:flex;gap:16px;margin-top:16px;opacity:0;animation:fadeUp .8s .8s forwards;font-size:24px">
-    <span title="India">🇮🇳</span><span title="USA">🇺🇸</span><span title="Finland">🇫🇮</span><span title="Germany">🇩🇪</span><span title="France">🇫🇷</span><span title="Switzerland">🇨🇭</span><span title="Norway">🇳🇴</span><span title="Czech Republic">🇨🇿</span>
+<div class="intro" id="intro" style="overflow-y:auto">
+  <div style="font-size:44px;opacity:0;animation:fadeUp .5s .1s forwards">🌍</div>
+  <h1 style="margin-top:8px">JP Explorer</h1>
+  <p class="tagline">20 Countries · 136 Places · Born Explorer ♐</p>
+  <div style="display:flex;gap:8px;margin-top:10px;opacity:0;animation:fadeUp .6s .5s forwards;font-size:18px;flex-wrap:wrap;justify-content:center">
+    <span>🇮🇳</span><span>🇺🇸</span><span>🇫🇮</span><span>🇩🇪</span><span>🇫🇷</span><span>🇨🇭</span><span>🇳🇴</span><span>🇨🇿</span><span>🇰🇷</span><span>🇧🇪</span><span>🇳🇱</span><span>🇱🇺</span><span>🇩🇰</span><span>🇸🇪</span><span>🇸🇬</span><span>🇹🇭</span><span>🇦🇪</span><span>🇲🇽</span><span>🇬🇧</span><span>🇭🇰</span>
   </div>
-  <div class="ctas">
-    <button class="cta cta-primary" onclick="document.getElementById('intro').classList.add('hide');setTimeout(()=>document.getElementById('intro').style.display='none',1200)">🌍 Explore My World</button>
-    <button class="cta cta-secondary" onclick="document.getElementById('intro').classList.add('hide');setTimeout(()=>{document.getElementById('intro').style.display='none';document.getElementById('btnStory').click()},1200)">📖 Watch My Story</button>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px;max-width:340px;width:100%;padding:0 12px;opacity:0;animation:fadeUp .7s .7s forwards">
+    <div class="intro-card" onclick="goTab('vMap')"><div style="font-size:24px">🗺️</div><div style="font-size:13px;font-weight:700;margin-top:2px">World Map</div><div style="font-size:9px;color:var(--text2)">136 pins · 20 countries</div></div>
+    <div class="intro-card" onclick="goTab('vJourney')"><div style="font-size:24px">⏳</div><div style="font-size:13px;font-weight:700;margin-top:2px">Journey</div><div style="font-size:9px;color:var(--text2)">Stats · Timeline · Rides</div></div>
+    <div class="intro-card" onclick="goTab('vDiary')"><div style="font-size:24px">📖</div><div style="font-size:13px;font-weight:700;margin-top:2px">Life Diary</div><div style="font-size:9px;color:var(--text2)">7 chapters · Full story</div></div>
+    <div class="intro-card" onclick="goTab('vFamily')"><div style="font-size:24px">👨‍👩‍👧</div><div style="font-size:13px;font-weight:700;margin-top:2px">Family</div><div style="font-size:9px;color:var(--text2)">Roots · Parents · Sacred places</div></div>
+    <div class="intro-card" onclick="goTab('vList')"><div style="font-size:24px">📍</div><div style="font-size:13px;font-weight:700;margin-top:2px">All Places</div><div style="font-size:9px;color:var(--text2)">Browse · Filter · Explore</div></div>
+    <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnStory').click(),500)"><div style="font-size:24px">🎬</div><div style="font-size:13px;font-weight:700;margin-top:2px">Story Mode</div><div style="font-size:9px;color:var(--text2)">Cinematic slideshow</div></div>
+    <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnPlay').click(),500)"><div style="font-size:24px">▶️</div><div style="font-size:13px;font-weight:700;margin-top:2px">Play Journey</div><div style="font-size:9px;color:var(--text2)">Fly through my life</div></div>
+    <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnRand').click(),500)"><div style="font-size:24px">🎲</div><div style="font-size:13px;font-weight:700;margin-top:2px">Random Memory</div><div style="font-size:9px;color:var(--text2)">Surprise yourself</div></div>
   </div>
-  <p style="font-size:11px;color:var(--text2);margin-top:24px;opacity:0;animation:fadeUp .8s 1.2s forwards">From Chitradurga 🇮🇳 to Mont Blanc 🇫🇷 — every pin is a memory</p>
+  <p style="font-size:9px;color:var(--text2);margin-top:14px;opacity:0;animation:fadeUp .7s 1s forwards">From Devarayanadurga on a Hero Ranger 🚲 to Mont Blanc in a Yaris 🚗 · ♐</p>
 </div>
 
 <!-- NAV -->
@@ -822,6 +832,10 @@ const bCls={visited:'b-v',lived:'b-l',birthplace:'b-b',transit:'b-t',wishlist:'b
 // === THEME ===
 const themeBtn=document.getElementById('themeBtn');
 themeBtn.onclick=()=>{document.body.classList.toggle('light');themeBtn.textContent=document.body.classList.contains('light')?'🌙':'☀️'};
+
+// === HELPERS ===
+function dismissIntro(){document.getElementById('intro').classList.add('hide');setTimeout(()=>document.getElementById('intro').style.display='none',1200)}
+function goTab(v){dismissIntro();setTimeout(()=>{const t=document.querySelector('[data-v="'+v+'"]');if(t)t.click()},500)}
 
 // === NAV ===
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
