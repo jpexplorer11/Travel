@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#06061a">
 <title>JP's Travel World</title>
 <link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -21,7 +22,7 @@ body.light{--bg:#F8F9FB;--bg2:#fff;--card:rgba(255,255,255,0.92);--card2:rgba(24
 .intro{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#05070A 0%,#0B1F3A 50%,#0d2847 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.2s,transform 1.2s}
 .intro.hide{opacity:0;transform:scale(1.05);pointer-events:none}
 .intro::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 80%,rgba(212,175,55,0.08) 0%,transparent 60%)}
-.intro h1{font-size:clamp(32px,7vw,56px);font-weight:800;color:var(--accent);letter-spacing:-1px;text-align:center;opacity:0;animation:fadeUp .8s .2s forwards}
+.intro h1{font-size:clamp(36px,8vw,64px);font-weight:800;color:var(--accent);letter-spacing:-1px;text-align:center;opacity:0;animation:fadeUp .8s .2s forwards}
 .intro .tagline{font-size:clamp(14px,2.5vw,18px);color:var(--text2);margin-top:8px;font-style:italic;letter-spacing:0.5px;opacity:0;animation:fadeUp .8s .6s forwards;text-align:center;max-width:400px;line-height:1.5}
 .intro .ctas{display:flex;gap:12px;margin-top:32px;opacity:0;animation:fadeUp .8s 1s forwards}
 .intro .cta{padding:14px 32px;border-radius:30px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;letter-spacing:0.3px}
@@ -40,7 +41,7 @@ body.light{--bg:#F8F9FB;--bg2:#fff;--card:rgba(255,255,255,0.92);--card2:rgba(24
 /* NAV */
 .nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(5,7,10,0.85);backdrop-filter:blur(30px);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.04);transition:all .3s}
 body.light .nav{background:rgba(248,249,251,0.9)}
-.nav h1{font-size:15px;font-weight:800;color:var(--accent)}
+.nav h1{font-size:18px;font-weight:800;color:var(--accent)}
 .nav .sub{font-size:9px;color:var(--text2);letter-spacing:1px}
 .nav-r{display:flex;align-items:center;gap:4px}
 .tabs{display:flex;gap:2px;background:rgba(255,255,255,0.03);border-radius:14px;padding:3px;border:1px solid rgba(255,255,255,0.04)}
@@ -92,7 +93,7 @@ body.light .nav{background:rgba(248,249,251,0.9)}
 .pm{background:var(--bg2);border-radius:22px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;animation:slideUp .4s;border:1px solid rgba(255,255,255,0.06);box-shadow:0 20px 60px rgba(0,0,0,0.4)}
 .pm-hero{width:100%;height:180px;object-fit:cover;border-radius:22px 22px 0 0}
 .pm-body{padding:18px}
-.pm-name{font-size:24px;font-weight:800;letter-spacing:-0.5px}
+.pm-name{font-size:28px;font-weight:800;letter-spacing:-0.5px}
 .pm-sub{font-size:13px;color:var(--text2);margin-top:4px;letter-spacing:0.3px}
 .pm-badges{display:flex;gap:5px;margin:10px 0;flex-wrap:wrap}
 .pm-badges span{font-size:11px;padding:4px 11px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.06);font-weight:500}
@@ -106,7 +107,7 @@ body.light .nav{background:rgba(248,249,251,0.9)}
 /* JOURNEY */
 .journey{padding:68px 16px 40px;max-width:540px;margin:0 auto}
 .hero{text-align:center;padding:24px 0}
-.hero h2{font-size:28px;font-weight:800;color:var(--accent);letter-spacing:-0.5px}
+.hero h2{font-size:32px;font-weight:800;color:var(--accent);letter-spacing:-0.5px}
 .hero p{color:var(--text2);font-size:14px;margin-top:6px;font-style:italic;line-height:1.5}
 .otd{background:linear-gradient(135deg,rgba(212,175,55,0.08),rgba(46,196,182,0.05));border-radius:var(--r);padding:16px;margin:14px 0;border:1px solid rgba(212,175,55,0.1);text-align:center}
 .otd .otd-title{font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:1.5px}
@@ -115,13 +116,13 @@ body.light .nav{background:rgba(248,249,251,0.9)}
 .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
 .card{background:var(--card2);border-radius:var(--r);padding:20px;text-align:center;border:1px solid rgba(255,255,255,0.04);transition:transform .25s,box-shadow .25s}
 .card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,0.2)}
-.card .n{font-size:36px;font-weight:800;line-height:1}
+.card .n{font-size:42px;font-weight:800;line-height:1}
 .card .l{font-size:9px;color:var(--text2);margin-top:6px;text-transform:uppercase;letter-spacing:2px;font-weight:600}
 .card:nth-child(1) .n{color:var(--accent)}
 .card:nth-child(2) .n{color:var(--accent2)}
 .card:nth-child(3) .n{color:var(--accent3)}
 .card:nth-child(4) .n{color:var(--accent4)}
-.sec{font-size:14px;font-weight:700;margin:28px 0 10px;display:flex;align-items:center;gap:6px;color:var(--accent)}
+.sec{font-size:16px;font-weight:800;margin:28px 0 10px;display:flex;align-items:center;gap:6px;color:var(--accent)}
 .chapter{background:var(--card2);border-radius:var(--r);padding:14px 16px;margin:6px 0;border-left:3px solid var(--accent);transition:transform .2s,box-shadow .2s}
 .chapter:hover{transform:translateX(4px);box-shadow:0 4px 16px rgba(0,0,0,0.15)}
 .chapter h4{font-size:14px;font-weight:700}
@@ -167,7 +168,7 @@ body.light .nav{background:rgba(248,249,251,0.9)}
 
 /* DIARY */
 .diary-content{padding:68px 16px 40px;max-width:600px;margin:0 auto;line-height:1.9}
-.diary-content h3{font-size:20px;font-weight:800;margin:36px 0 14px;letter-spacing:-0.3px}
+.diary-content h3{font-size:24px;font-weight:800;margin:36px 0 14px;letter-spacing:-0.3px}
 .diary-content p{color:var(--text2);font-size:14px;margin-top:10px}
 .diary-content p:first-of-type::first-letter{font-size:2.4em;font-weight:800;color:var(--accent);float:left;line-height:1;margin-right:8px;margin-top:4px}
 .diary-content strong{color:var(--text)}
@@ -181,7 +182,7 @@ body.light .nav{background:rgba(248,249,251,0.9)}
 .pc:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.15)}
 .pc:active{transform:scale(.98)}
 .pc-top{display:flex;justify-content:space-between;align-items:start}
-.pc-name{font-size:15px;font-weight:700;letter-spacing:-0.2px}
+.pc-name{font-size:17px;font-weight:800;letter-spacing:-0.3px}
 .pc-sub{font-size:11px;color:var(--text2)}
 .pc-badge{font-size:10px;padding:3px 10px;border-radius:10px;font-weight:600}
 .pc-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
@@ -356,6 +357,7 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
 <!-- MAP -->
 <div class="v on" id="vMap">
   <div id="map"></div>
+  <div style="position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:900;background:rgba(5,7,10,0.85);backdrop-filter:blur(20px);padding:8px 18px;border-radius:14px;font-size:11px;color:var(--text2);border:1px solid rgba(255,255,255,0.06);pointer-events:none" id="mapInfo">🌍 Loading...</div>
   <div style="position:fixed;top:58px;left:10px;z-index:900;display:flex;gap:4px;flex-wrap:wrap">
     <button class="mfilt on" data-f="all" style="padding:4px 10px;border-radius:10px;border:none;font-size:10px;font-weight:600;cursor:pointer;background:var(--accent);color:#000">All</button>
     <button class="mfilt" data-f="lived" style="padding:4px 10px;border-radius:10px;border:none;font-size:10px;font-weight:600;cursor:pointer;background:rgba(255,255,255,0.08);color:var(--text2)">🟢 Lived</button>
@@ -893,7 +895,7 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
       <div class="pm-notes" id="pmNotes"></div>
       <div class="pm-acts">
         <button style="background:var(--card2);color:var(--text)" onclick="document.getElementById('pmOv').classList.remove('on')">Close</button>
-        <button style="background:var(--accent);color:#fff" id="pmEdit">✏️ Edit</button>
+        <button style="background:var(--accent);color:#fff" id="pmEdit">✏️ Edit + 📸</button>
         
       </div>
     </div>
@@ -1141,6 +1143,8 @@ function render(){
   });
   const vis=[...P].filter(p=>p.date&&p.status!=='wishlist').sort((a,b)=>a.date.localeCompare(b.date));
   if(vis.length>1)pathLine=L.polyline(vis.map(p=>[p.lat,p.lng]),{color:'#D4AF37',weight:1.5,opacity:.2,dashArray:'6,12'}).addTo(map);
+    const pinCount=Object.keys(M).length;
+  const ci=document.getElementById('mapInfo');if(ci)ci.textContent='🌍 '+pinCount+' places · 20 countries · ♐ Born Explorer';
   }catch(e){console.warn('Render error:',e)}
 }
 
