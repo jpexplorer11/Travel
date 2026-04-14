@@ -1241,7 +1241,7 @@ const geoBtn=document.getElementById('btnPlayGeo');if(geoBtn)geoBtn.onclick=asyn
 };
 
 // === RANDOM ===
-document.getElementById('btnRand').onclick=()=>{
+const randBtn=document.getElementById('btnRand');if(randBtn)randBtn.onclick=()=>{
   const v=P.filter(p=>p.status!=='wishlist');if(!v.length)return;
   const p=v[Math.floor(Math.random()*v.length)];
   map&&map.flyTo([p.lat,p.lng],10,{duration:1});
