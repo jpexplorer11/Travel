@@ -157,5 +157,7 @@ const SEED_DATA = [
   {id:"us40",name:"Klamath Falls",country:"USA",lat:42.2249,lng:-121.7817,status:"visited",cat:"nature",date:"2013-07-01",travel:"own-car",visits:1,rating:3,memory:"Oregon gateway — road trip stop",reason:"personal",chapter:"America",public:true},
   {id:"us41",name:"Buffalo",country:"USA",lat:42.8864,lng:-78.8784,status:"visited",cat:"city",date:"2008-09-01",travel:"own-car",visits:1,rating:3,memory:"Near Niagara — East Coast road trip",reason:"personal",chapter:"Wipro Years",public:true},
   {id:"us42",name:"Newark",country:"USA",lat:40.7357,lng:-74.1724,status:"visited",cat:"city",date:"2008-11-01",travel:"own-car",visits:1,rating:3,memory:"NYC gateway",reason:"personal",chapter:"Wipro Years",public:true},
-  {id:"us43",name:"Watkins Glen State Park",country:"USA",lat:42.3726,lng:-76.8727,status:"visited",cat:"nature",date:"2013-09-01",travel:"own-car",visits:1,rating:5,memory:"Gorge trail — 19 waterfalls in one hike!",reason:"vacation",chapter:"America",public:true}
+  {id:"us43",name:"Watkins Glen State Park",country:"USA",lat:42.3726,lng:-76.8727,status:"visited",cat:"nature",date:"2013-09-01",travel:"own-car",visits:1,rating:5,memory:"Gorge trail — 19 waterfalls in one hike!",reason:"vacation",chapter:"America",public:true},
+  {id:"w26",name:"Ontario",country:"Canada",lat:43.6532,lng:-79.3832,status:"wishlist",cat:"city",date:"",travel:"flight",visits:0,rating:5,memory:"Niagara from the Canadian side + Toronto 🇨🇦",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w27",name:"Miami",country:"USA",lat:25.7617,lng:-80.1918,status:"wishlist",cat:"beach",date:"",travel:"flight",visits:0,rating:5,memory:"South Beach, Art Deco, Florida vibes 🌴",reason:"vacation",chapter:"Dreams",public:true}
 ];
