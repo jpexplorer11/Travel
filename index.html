@@ -357,12 +357,12 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
 <div class="v on" id="vMap">
   <div id="map"></div>
   <div class="scroll-prog" id="scrollProg"></div>
-  <div class="map-legend"><span class="legend-pill">🟢 Lived</span><span class="legend-pill">🔴 Visited</span><span class="legend-pill">💗 Born</span><span class="legend-pill">💜 Dream</span></div>
+  
   <button class="fab fab-add" id="btnAdd">+</button>
   <button class="fab fab-play" id="btnPlay" title="Play Journey (Timeline)">▶</button>
   <button class="fab" id="btnPlayGeo" title="Play East → West" style="bottom:24px;right:122px;background:rgba(212,175,55,0.9);box-shadow:0 6px 20px var(--glow-gold);font-size:14px">🌐</button>
   <button class="fab" id="btnStory" title="Story Mode" style="display:none" style="bottom:24px;right:176px;background:rgba(162,155,254,0.9);box-shadow:0 6px 20px rgba(162,155,254,0.3);font-size:14px">📖</button>
-  <button class="fab fab-rand" id="btnRand" title="Random Memory">🎲</button>
+  
   <div class="jo" id="jo"><div id="joN" style="font-size:16px;font-weight:700"></div><div id="joM" style="font-size:12px;color:var(--text2);margin-top:2px"></div></div>
 </div>
 
@@ -1107,8 +1107,8 @@ document.querySelector('.tab.on').style.background='#2EC4B6';document.querySelec
 // === MAP ===
 let map;
 try{
-  map=L.map('map',{zoomControl:false}).setView([25,10],3);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+  map=L.map('map',{zoomControl:false,maxBounds:[[-85,-180],[85,180]],maxBoundsViscosity:1.0,worldCopyJump:false}).setView([25,10],3);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,noWrap:true}).addTo(map);
   L.control.zoom({position:'bottomright'}).addTo(map);
 }catch(e){console.warn('Map failed:',e)}
 
