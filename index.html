@@ -314,8 +314,13 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
 <!-- INTRO -->
 <div class="intro" id="intro" style="overflow-y:auto">
   <div style="font-size:44px;opacity:0;animation:fadeUp .5s .1s forwards">🌍</div>
-  <h1 style="margin-top:8px">JP Explorer</h1>
-  <p class="tagline">20 Countries · 136 Places · Born Explorer ♐</p>
+  <h1 style="margin-top:8px">JP's Journey</h1>
+  <p class="tagline">A Life & Travels Across Continents</p>
+  <p style="font-size:11px;color:var(--text2);margin-top:6px;opacity:0;animation:fadeUp .6s .4s forwards;line-height:1.6">From India to the US to Europe — shaped by experience, not just travel.</p>
+  <div style="display:flex;gap:12px;justify-content:center;margin-top:10px;opacity:0;animation:fadeUp .6s .5s forwards">
+    <span style="font-size:10px;color:var(--text2);padding:3px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06)">Every place changed me</span>
+    <span style="font-size:10px;color:var(--text2);padding:3px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06)">From roots to the world</span>
+  </div>
   <div style="display:flex;gap:8px;margin-top:10px;opacity:0;animation:fadeUp .6s .5s forwards;font-size:18px;flex-wrap:wrap;justify-content:center">
     <span>🇮🇳</span><span>🇺🇸</span><span>🇫🇮</span><span>🇩🇪</span><span>🇫🇷</span><span>🇨🇭</span><span>🇳🇴</span><span>🇨🇿</span><span>🇰🇷</span><span>🇧🇪</span><span>🇳🇱</span><span>🇱🇺</span><span>🇩🇰</span><span>🇸🇪</span><span>🇸🇬</span><span>🇹🇭</span><span>🇦🇪</span><span>🇲🇽</span><span>🇬🇧</span><span>🇭🇰</span>
   </div>
@@ -329,12 +334,12 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
     <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnPlay').click(),500)"><div style="font-size:24px">▶️</div><div style="font-size:13px;font-weight:700;margin-top:2px">Play Journey</div><div style="font-size:9px;color:var(--text2)">Fly through my life</div></div>
     <div class="intro-card" onclick="goTab('vChild')"><div style="font-size:24px">👧</div><div style="font-size:13px;font-weight:700;margin-top:2px">Adithi's World</div><div style="font-size:9px;color:var(--text2)">My daughter's journey</div></div>
   </div>
-  <p style="font-size:9px;color:var(--text2);margin-top:14px;opacity:0;animation:fadeUp .7s 1s forwards">From Devarayanadurga on a Hero Ranger 🚲 to Mont Blanc in a Yaris 🚗 · ♐</p>
+  <p style="font-size:9px;color:var(--text2);margin-top:14px;opacity:0;animation:fadeUp .7s 1s forwards">A Sagittarius spirit — seeking, learning, never staying still for long ♐<br>Still exploring — drawn to the world's quieter, unique places.</p>
 </div>
 
 <!-- NAV -->
 <nav class="nav">
-  <div><h1>JP Explorer</h1><div class="sub">🌍 20 Countries · 120+ Memories · Born Explorer ♐</div></div>
+  <div><h1>JP's Journey</h1><div class="sub">🌍 20 Countries · A Sagittarius spirit ♐</div></div>
   <div class="nav-r">
     <div class="tabs">
       <button class="tab on" data-v="vMap" data-c="#2EC4B6">🗺️ Map</button>
@@ -1065,7 +1070,7 @@ const SEED_DATA = [
 /* JP's Travel World — Premium Edition */
 const K='myTravelPlaces';
 let P=JSON.parse(localStorage.getItem(K)||'[]');
-if(typeof SEED_DATA!=='undefined'&&P.length<SEED_DATA.length){P=[...SEED_DATA];localStorage.setItem(K,JSON.stringify(P))}
+if(typeof SEED_DATA!=='undefined'){P=[...SEED_DATA];localStorage.setItem(K,JSON.stringify(P))}
 let M={},editId=null,pending=null,pathLine=null;
 const save=()=>localStorage.setItem(K,JSON.stringify(P));
 
