@@ -317,28 +317,49 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
 
 <!-- INTRO -->
 <div class="intro" id="intro" style="overflow-y:auto">
-  <div style="font-size:44px;opacity:0;animation:fadeUp .5s .1s forwards">🌍</div>
-  <h1 style="margin-top:8px">JP's Journey</h1>
-  <p class="tagline">A Life & Travels Across Continents</p>
-  <p style="font-size:11px;color:var(--text2);margin-top:6px;opacity:0;animation:fadeUp .6s .4s forwards;line-height:1.6">From India to the US to Europe — shaped by experience, not just travel.</p>
-  <div style="display:flex;gap:12px;justify-content:center;margin-top:10px;opacity:0;animation:fadeUp .6s .5s forwards">
-    <span style="font-size:10px;color:var(--text2);padding:3px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06)">Every place changed me</span>
-    <span style="font-size:10px;color:var(--text2);padding:3px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06)">From roots to the world</span>
+
+  <!-- Title -->
+  <div style="font-size:40px;opacity:0;animation:fadeUp .5s .1s forwards">🌍</div>
+  <h1 style="margin-top:10px;font-size:clamp(28px,6vw,48px)">JP's Journey</h1>
+  <p style="font-size:clamp(13px,2.5vw,16px);color:var(--text2);margin-top:4px;opacity:0;animation:fadeUp .6s .3s forwards">45 Years Across Continents — and still unfolding</p>
+
+  <!-- Subtitle -->
+  <p style="font-size:14px;color:var(--text);margin-top:14px;opacity:0;animation:fadeUp .6s .5s forwards;font-weight:600">Life & Travels Across Continents</p>
+
+  <!-- Story Block -->
+  <div style="max-width:380px;margin-top:16px;opacity:0;animation:fadeUp .6s .7s forwards;line-height:1.8;text-align:center">
+    <p style="font-size:12px;color:var(--text2)">From Devarayanadurga, Tumkur — on a Hero Ranger cycle<br>to Mont Blanc in a Toyota Yaris —</p>
+    <p style="font-size:12px;color:var(--text2);margin-top:8px">From roots to the world, shaped by every place along the way.</p>
   </div>
-  <div style="display:flex;gap:8px;margin-top:10px;opacity:0;animation:fadeUp .6s .5s forwards;font-size:18px;flex-wrap:wrap;justify-content:center">
-    <span>🇮🇳</span><span>🇺🇸</span><span>🇫🇮</span><span>🇩🇪</span><span>🇫🇷</span><span>🇨🇭</span><span>🇳🇴</span><span>🇨🇿</span><span>🇰🇷</span><span>🇧🇪</span><span>🇳🇱</span><span>🇱🇺</span><span>🇩🇰</span><span>🇸🇪</span><span>🇸🇬</span><span>🇹🇭</span><span>🇦🇪</span><span>🇲🇽</span><span>🇬🇧</span><span>🇭🇰</span>
+
+  <!-- Flags -->
+  <div style="display:flex;gap:6px;margin-top:14px;opacity:0;animation:fadeUp .6s .9s forwards;font-size:16px;flex-wrap:wrap;justify-content:center">
+    <span>🇮🇳</span><span>🇺🇸</span><span>🇫🇮</span><span>🇩🇪</span><span>🇫🇷</span><span>🇨🇭</span><span>🇳🇴</span><span>🇨🇿</span><span>🇰🇷</span><span>🇧🇪</span><span>🇳🇱</span><span>🇱🇺</span><span>🇸🇪</span><span>🇸🇬</span><span>🇹🇭</span><span>🇦🇪</span><span>🇲🇽</span>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px;max-width:340px;width:100%;padding:0 12px;opacity:0;animation:fadeUp .7s .7s forwards">
-    <div class="intro-card" onclick="goTab('vMap')"><div style="font-size:24px">🗺️</div><div style="font-size:13px;font-weight:700;margin-top:2px">World Map</div><div style="font-size:9px;color:var(--text2)">136 pins · 17 countries</div></div>
-    <div class="intro-card" onclick="goTab('vJourney')"><div style="font-size:24px">⏳</div><div style="font-size:13px;font-weight:700;margin-top:2px">Journey</div><div style="font-size:9px;color:var(--text2)">Stats · Timeline · Rides</div></div>
-    <div class="intro-card" onclick="goTab('vDiary')"><div style="font-size:24px">📖</div><div style="font-size:13px;font-weight:700;margin-top:2px">Life Diary</div><div style="font-size:9px;color:var(--text2)">7 chapters · Full story</div></div>
-    <div class="intro-card" onclick="goTab('vFamily')"><div style="font-size:24px">👨‍👩‍👧</div><div style="font-size:13px;font-weight:700;margin-top:2px">Family</div><div style="font-size:9px;color:var(--text2)">Roots · Parents · Sacred places</div></div>
-    <div class="intro-card" onclick="goTab('vList')"><div style="font-size:24px">📍</div><div style="font-size:13px;font-weight:700;margin-top:2px">All Places</div><div style="font-size:9px;color:var(--text2)">Browse · Filter · Explore</div></div>
-    <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnPlayGeo').click(),500)"><div style="font-size:24px">🌐</div><div style="font-size:13px;font-weight:700;margin-top:2px">East → West</div><div style="font-size:9px;color:var(--text2)">Country by country tour</div></div>
-    <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnPlay').click(),500)"><div style="font-size:24px">▶️</div><div style="font-size:13px;font-weight:700;margin-top:2px">Play Journey</div><div style="font-size:9px;color:var(--text2)">Fly through my life</div></div>
-    <div class="intro-card" onclick="goTab('vChild')"><div style="font-size:24px">👧</div><div style="font-size:13px;font-weight:700;margin-top:2px">Adithi's World</div><div style="font-size:9px;color:var(--text2)">My daughter's journey</div></div>
+
+  <!-- Taglines -->
+  <div style="margin-top:16px;opacity:0;animation:fadeUp .6s 1.1s forwards;text-align:center">
+    <p style="font-size:11px;color:var(--text2);line-height:2">Every place changed me.<br>More than travel — a journey of growth.<br>From roots to the world.</p>
   </div>
-  <p style="font-size:9px;color:var(--text2);margin-top:14px;opacity:0;animation:fadeUp .7s 1s forwards">A Sagittarius spirit — seeking, learning, never staying still for long ♐<br>Still exploring — drawn to the world's quieter, unique places.</p>
+
+  <!-- Cards -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;max-width:340px;width:100%;padding:0 12px;opacity:0;animation:fadeUp .7s 1.3s forwards">
+    <div class="intro-card" onclick="goTab('vMap')"><div style="font-size:22px">🗺️</div><div style="font-size:12px;font-weight:700;margin-top:2px">World Map</div><div style="font-size:9px;color:var(--text2)">161 pins · 17 countries</div></div>
+    <div class="intro-card" onclick="goTab('vJourney')"><div style="font-size:22px">⏳</div><div style="font-size:12px;font-weight:700;margin-top:2px">Journey</div><div style="font-size:9px;color:var(--text2)">Stats · Timeline · Rides</div></div>
+    <div class="intro-card" onclick="goTab('vDiary')"><div style="font-size:22px">📖</div><div style="font-size:12px;font-weight:700;margin-top:2px">Life Diary</div><div style="font-size:9px;color:var(--text2)">7 chapters · Full story</div></div>
+    <div class="intro-card" onclick="goTab('vChild')"><div style="font-size:22px">👧</div><div style="font-size:12px;font-weight:700;margin-top:2px">Adithi's World</div><div style="font-size:9px;color:var(--text2)">My daughter's journey</div></div>
+    <div class="intro-card" onclick="goTab('vFamily')"><div style="font-size:22px">❤️</div><div style="font-size:12px;font-weight:700;margin-top:2px">Roots & More</div><div style="font-size:9px;color:var(--text2)">Family · Gurus · About Me</div></div>
+    <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnPlay').click(),500)"><div style="font-size:22px">▶️</div><div style="font-size:12px;font-weight:700;margin-top:2px">Play Journey</div><div style="font-size:9px;color:var(--text2)">Fly through my life</div></div>
+  </div>
+
+  <!-- Overview -->
+  <div style="max-width:360px;margin-top:16px;opacity:0;animation:fadeUp .7s 1.5s forwards;text-align:center">
+    <p style="font-size:11px;color:var(--text2);line-height:1.6">I'm JP — a telecom engineer, a father, and someone who rebuilt life across countries.<br>This journey reflects growth, challenges, and learning across India, the US, and Europe.</p>
+  </div>
+
+  <!-- Personality -->
+  <p style="font-size:10px;color:var(--text2);margin-top:14px;opacity:0;animation:fadeUp .7s 1.7s forwards;opacity:0.6">A Sagittarius spirit — seeking, learning, and never staying still for long. ♐</p>
+
 </div>
 
 <!-- NAV -->
