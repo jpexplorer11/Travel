@@ -289,10 +289,13 @@ button:active{transform:scale(0.95)}
 </head>
 <body>
 <!-- PASSWORD -->
-<div id="pwScreen" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#05070A,#0B1F3A);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:system-ui,sans-serif">
-  <div style="font-size:48px">🔒</div>
-  <h2 style="color:#D4AF37;font-size:24px;font-weight:800;margin-top:12px">JP Explorer</h2>
-  <p style="color:#7A8BA8;font-size:13px;margin-top:6px">Private · Enter password to continue</p>
+<div id="pwScreen" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#05070A 0%,#0B1F3A 50%,#0d2847 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:system-ui,sans-serif;text-align:center;padding:20px">
+  <div style="font-size:52px;animation:fadeUp .5s forwards;opacity:0">🌍</div>
+  <h2 style="color:#D4AF37;font-size:28px;font-weight:800;margin-top:12px;opacity:0;animation:fadeUp .6s .2s forwards">JP's Journey</h2>
+  <p style="color:#E8ECF1;font-size:15px;margin-top:8px;opacity:0;animation:fadeUp .6s .4s forwards;font-style:italic">"The world is a book, and those who do not travel read only one page."</p>
+  <p style="color:#7A8BA8;font-size:12px;margin-top:12px;opacity:0;animation:fadeUp .6s .6s forwards;line-height:1.6">A personal life map — 20 countries, 4 continents, 45 years of memories.<br>From a small town in India to the peaks of Mont Blanc.</p>
+  <div style="display:flex;gap:8px;margin-top:12px;opacity:0;animation:fadeUp .6s .7s forwards;font-size:16px">🇮🇳🇺🇸🇫🇮🇩🇪🇫🇷🇨🇭🇳🇴🇰🇷🇧🇪🇳🇱</div>
+  <p style="color:#7A8BA8;font-size:11px;margin-top:16px;opacity:0;animation:fadeUp .6s .8s forwards">🔒 Private · Enter password to explore</p>
   <input type="password" id="pwInput" placeholder="Password" style="margin-top:20px;padding:12px 20px;border-radius:14px;border:1px solid rgba(212,175,55,0.2);background:rgba(255,255,255,0.04);color:#E8ECF1;font-size:16px;text-align:center;width:220px;outline:none" onkeydown="if(event.key==='Enter')checkPw()">
   <button onclick="checkPw()" style="margin-top:12px;padding:12px 32px;border-radius:14px;border:none;background:#D4AF37;color:#05070A;font-size:14px;font-weight:700;cursor:pointer">Enter →</button>
   <p id="pwErr" style="color:#ff4444;font-size:12px;margin-top:8px;display:none">Wrong password</p>
@@ -1144,7 +1147,7 @@ function render(){
   const vis=[...P].filter(p=>p.date&&p.status!=='wishlist').sort((a,b)=>a.date.localeCompare(b.date));
   if(vis.length>1)pathLine=L.polyline(vis.map(p=>[p.lat,p.lng]),{color:'#D4AF37',weight:1.5,opacity:.2,dashArray:'6,12'}).addTo(map);
     const pinCount=Object.keys(M).length;
-  const ci=document.getElementById('mapInfo');if(ci)ci.textContent='🌍 '+pinCount+' places · 20 countries · ♐ Born Explorer';
+  const ci=document.getElementById('mapInfo');if(ci)ci.textContent='🌍 '+pinCount+' places pinned · ♐ Born Explorer';
   }catch(e){console.warn('Render error:',e)}
 }
 
@@ -1310,15 +1313,16 @@ document.getElementById('btnS').onclick=()=>{
 function animN(el,n){let c=0;const s=Math.max(1,Math.ceil(n/25));const t=setInterval(()=>{c+=s;if(c>=n){c=n;clearInterval(t)}el.textContent=c},30)}
 
 function renderJourney(){
-  const v=P.filter(p=>p.status!=='wishlist'),w=P.filter(p=>p.status==='wishlist');
+  const v=P.filter(p=>p.status!=='wishlist'&&p.status!=='transit'),w=P.filter(p=>p.status==='wishlist');
   const countries=[...new Set(v.map(p=>p.country).filter(Boolean))];
+  const dreamCountries=[...new Set(w.map(p=>p.country).filter(Boolean))];
   const totalVis=v.reduce((s,p)=>s+(p.visits||1),0);
   // On this day
   const today=new Date().toISOString().slice(5,10);
   const otdP=v.filter(p=>p.date&&p.date.slice(5,10)===today);
   document.getElementById('otd').innerHTML=otdP.length?`<div class="otd"><div class="otd-title">📅 On This Day</div><div class="otd-place">${otdP[0].name}, ${otdP[0].country||''}</div><div class="otd-mem">${otdP[0].memory||otdP[0].date}</div></div>`:'';
   // Cards
-  document.getElementById('iCards').innerHTML=`<div class="card"><div class="n" data-n="${v.length}">0</div><div class="l">Places</div></div><div class="card"><div class="n" data-n="${countries.length}">0</div><div class="l">Countries</div></div><div class="card"><div class="n" data-n="${totalVis}">0</div><div class="l">Visits</div></div><div class="card"><div class="n" data-n="${w.length}">0</div><div class="l">Dreams</div></div>`;
+  document.getElementById('iCards').innerHTML=`<div class="card"><div class="n" data-n="${v.length}">0</div><div class="l">Places Explored</div></div><div class="card"><div class="n" data-n="${countries.length}">0</div><div class="l">Countries</div></div><div class="card"><div class="n" data-n="${totalVis}">0</div><div class="l">Total Visits</div></div><div class="card"><div class="n" data-n="${w.length}">0</div><div class="l">Planning to Visit</div></div>`;
   document.querySelectorAll('.card .n').forEach(el=>animN(el,+el.dataset.n));
   // Chapters
   const ch={};P.filter(p=>p.chapter).forEach(p=>{(ch[p.chapter]=ch[p.chapter]||[]).push(p)});
