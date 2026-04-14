@@ -5,46 +5,600 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0b0b1e">
+<meta name="theme-color" content="#06061a">
 <title>JP's Travel World</title>
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{--bg:#05070A;--bg2:#0B1F3A;--card:rgba(11,31,58,0.92);--card2:rgba(16,40,72,0.85);--accent:#D4AF37;--accent2:#2EC4B6;--accent3:#48dbfb;--accent4:#a29bfe;--text:#E8ECF1;--text2:#7A8BA8;--r:18px;--glass:rgba(255,255,255,0.04);--glow-gold:rgba(212,175,55,0.3);--glow-teal:rgba(46,196,182,0.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body.light{--bg:#F8F9FB;--bg2:#fff;--card:rgba(255,255,255,0.92);--card2:rgba(240,242,248,0.95);--text:#1d1d2e;--text2:#6B7280;--glass:rgba(0,0,0,0.03)}
+::selection{background:var(--accent);color:var(--bg)}
+
+/* INTRO */
+.intro{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#05070A 0%,#0B1F3A 50%,#0d2847 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.2s,transform 1.2s}
+.intro.hide{opacity:0;transform:scale(1.05);pointer-events:none}
+.intro::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 80%,rgba(212,175,55,0.08) 0%,transparent 60%)}
+.intro h1{font-size:clamp(32px,7vw,56px);font-weight:800;color:var(--accent);letter-spacing:-1px;text-align:center;opacity:0;animation:fadeUp .8s .2s forwards}
+.intro .tagline{font-size:clamp(14px,2.5vw,18px);color:var(--text2);margin-top:8px;font-style:italic;letter-spacing:0.5px;opacity:0;animation:fadeUp .8s .6s forwards;text-align:center;max-width:400px;line-height:1.5}
+.intro .ctas{display:flex;gap:12px;margin-top:32px;opacity:0;animation:fadeUp .8s 1s forwards}
+.intro .cta{padding:14px 32px;border-radius:30px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;letter-spacing:0.3px}
+.intro .cta:hover{transform:translateY(-2px)}
+.cta-primary{background:var(--accent);color:var(--bg);box-shadow:0 8px 30px var(--glow-gold)}
+.cta-secondary{background:transparent;color:var(--accent);border:1.5px solid rgba(212,175,55,0.3)!important;backdrop-filter:blur(10px)}
+.cta-secondary:hover{background:rgba(212,175,55,0.1);box-shadow:0 8px 30px var(--glow-gold)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.5);opacity:.3}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.3)}28%{transform:scale(1)}42%{transform:scale(1.2)}70%{transform:scale(1)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 8px var(--glow-gold)}50%{box-shadow:0 0 20px var(--glow-gold),0 0 40px rgba(212,175,55,0.1)}}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(5,7,10,0.85);backdrop-filter:blur(30px);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.04);transition:all .3s}
+body.light .nav{background:rgba(248,249,251,0.9)}
+.nav h1{font-size:15px;font-weight:800;color:var(--accent)}
+.nav .sub{font-size:9px;color:var(--text2);letter-spacing:1px}
+.nav-r{display:flex;align-items:center;gap:4px}
+.tabs{display:flex;gap:2px;background:rgba(255,255,255,0.03);border-radius:14px;padding:3px;border:1px solid rgba(255,255,255,0.04)}
+.tab{padding:6px 13px;border-radius:12px;border:none;background:transparent;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;transition:all .3s;letter-spacing:0.2px}
+.tab.on{background:var(--accent);color:var(--bg);box-shadow:0 4px 16px var(--glow-gold)}
+.theme-btn{width:30px;height:30px;border-radius:10px;border:none;background:rgba(255,255,255,0.04);color:var(--text2);font-size:13px;cursor:pointer;margin-left:6px;transition:all .3s}
+.theme-btn:hover{background:rgba(255,255,255,0.08)}
+
+/* VIEWS */
+.v{display:none;padding-top:52px;min-height:100vh}.v.on{display:block}
+#map{width:100vw;height:calc(100vh - 52px)}
+
+/* FABs */
+.fab{position:fixed;z-index:900;width:46px;height:46px;border-radius:14px;border:none;color:#fff;font-size:20px;cursor:pointer;transition:transform .2s,box-shadow .2s;backdrop-filter:blur(10px)}
+.fab:active{transform:scale(.9)}
+.fab:hover{transform:translateY(-2px)}
+.fab-add{bottom:24px;right:14px;background:var(--accent);color:var(--bg);box-shadow:0 6px 24px var(--glow-gold);animation:glowPulse 3s infinite}
+.fab-play{bottom:24px;right:68px;background:rgba(46,196,182,0.9);box-shadow:0 6px 20px var(--glow-teal);font-size:16px}
+.fab-rand{bottom:24px;left:14px;background:rgba(162,155,254,0.9);box-shadow:0 6px 20px rgba(162,155,254,0.3);font-size:16px}
+
+/* Markers */
+.marker-pulse{border-radius:50%}
+.marker-lived{background:#2EC4B6;box-shadow:0 0 12px #2EC4B6,0 0 24px rgba(46,196,182,0.2);animation:pulse 2.5s infinite}
+.marker-visited{background:var(--accent);box-shadow:0 0 8px var(--accent),0 0 16px var(--glow-gold);animation:pulse 3s infinite}
+.marker-wish{background:transparent;border:2px dashed var(--accent4);box-shadow:0 0 8px rgba(162,155,254,0.3);animation:pulse 4s infinite}
+.marker-transit{background:var(--text2);box-shadow:0 0 6px var(--text2);opacity:.6}
+.marker-birth{background:#ff9ff3;box-shadow:0 0 16px #ff9ff3,0 0 32px rgba(255,159,243,0.2);animation:heartbeat 1.5s infinite}
+
+/* STORY MODE */
+.story{position:fixed;inset:0;z-index:3000;background:#000;display:none;flex-direction:column}
+.story.on{display:flex}
+.story-slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;opacity:0;transition:opacity 1s;padding:30px 24px 70px}
+.story-slide.active{opacity:1}
+.story-slide .bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.35)}
+.story-slide .content{position:relative;z-index:1;max-width:480px}
+.story-slide .s-name{font-size:clamp(26px,5vw,42px);font-weight:800;letter-spacing:-0.5px;line-height:1.1}
+.story-slide .s-meta{font-size:14px;color:rgba(255,255,255,.6);margin-top:8px;letter-spacing:0.3px}
+.story-slide .s-memory{font-size:16px;margin-top:14px;font-style:italic;color:rgba(255,255,255,.8);line-height:1.5}
+.story-slide .s-rating{margin-top:8px;font-size:18px}
+.story-close{position:fixed;top:16px;right:16px;z-index:3001;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.1);color:#fff;font-size:18px;cursor:pointer;backdrop-filter:blur(10px)}
+.story-nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:3001;display:flex;gap:6px}
+.story-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:all .3s}
+.story-dot.on{background:var(--accent);transform:scale(1.4);box-shadow:0 0 8px var(--glow-gold)}
+.story-prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:3002;transition:width .4s}
+
+/* PLACE MODAL */
+.pm-ov{position:fixed;inset:0;z-index:2500;background:rgba(5,7,10,0.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center}
+.pm-ov.on{display:flex}
+.pm{background:var(--bg2);border-radius:22px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;animation:slideUp .4s;border:1px solid rgba(255,255,255,0.06);box-shadow:0 20px 60px rgba(0,0,0,0.4)}
+.pm-hero{width:100%;height:180px;object-fit:cover;border-radius:22px 22px 0 0}
+.pm-body{padding:18px}
+.pm-name{font-size:24px;font-weight:800;letter-spacing:-0.5px}
+.pm-sub{font-size:13px;color:var(--text2);margin-top:4px;letter-spacing:0.3px}
+.pm-badges{display:flex;gap:5px;margin:10px 0;flex-wrap:wrap}
+.pm-badges span{font-size:11px;padding:4px 11px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.06);font-weight:500}
+.pm-mem{font-size:15px;margin:12px 0;padding:14px 16px;background:rgba(212,175,55,0.06);border-radius:14px;border-left:3px solid var(--accent);font-style:italic;line-height:1.6;color:var(--text);letter-spacing:0.2px}
+.pm-notes{font-size:13px;color:var(--text2);line-height:1.7;letter-spacing:0.1px}
+.pm-stars{font-size:20px;margin:8px 0}
+.pm-acts{display:flex;gap:8px;margin-top:14px}
+.pm-acts button{flex:1;padding:11px;border-radius:14px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.pm-acts button:hover{transform:translateY(-1px)}
+
+/* JOURNEY */
+.journey{padding:68px 16px 40px;max-width:540px;margin:0 auto}
+.hero{text-align:center;padding:24px 0}
+.hero h2{font-size:28px;font-weight:800;color:var(--accent);letter-spacing:-0.5px}
+.hero p{color:var(--text2);font-size:14px;margin-top:6px;font-style:italic;line-height:1.5}
+.otd{background:linear-gradient(135deg,rgba(212,175,55,0.08),rgba(46,196,182,0.05));border-radius:var(--r);padding:16px;margin:14px 0;border:1px solid rgba(212,175,55,0.1);text-align:center}
+.otd .otd-title{font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:1.5px}
+.otd .otd-place{font-size:18px;font-weight:700;margin-top:6px}
+.otd .otd-mem{font-size:13px;color:var(--text2);font-style:italic;margin-top:4px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+.card{background:var(--card2);border-radius:var(--r);padding:20px;text-align:center;border:1px solid rgba(255,255,255,0.04);transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,0.2)}
+.card .n{font-size:36px;font-weight:800;line-height:1}
+.card .l{font-size:9px;color:var(--text2);margin-top:6px;text-transform:uppercase;letter-spacing:2px;font-weight:600}
+.card:nth-child(1) .n{color:var(--accent)}
+.card:nth-child(2) .n{color:var(--accent2)}
+.card:nth-child(3) .n{color:var(--accent3)}
+.card:nth-child(4) .n{color:var(--accent4)}
+.sec{font-size:14px;font-weight:700;margin:28px 0 10px;display:flex;align-items:center;gap:6px;color:var(--accent)}
+.chapter{background:var(--card2);border-radius:var(--r);padding:14px 16px;margin:6px 0;border-left:3px solid var(--accent);transition:transform .2s,box-shadow .2s}
+.chapter:hover{transform:translateX(4px);box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.chapter h4{font-size:14px;font-weight:700}
+.chapter p{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5}
+.citem{display:flex;justify-content:space-between;padding:11px 14px;background:var(--card2);border-radius:14px;margin:4px 0;font-size:13px;transition:transform .2s}
+.citem:hover{transform:translateX(3px)}
+.bar-r{display:flex;align-items:center;gap:8px;margin:4px 0}
+.bar-l{width:50px;font-size:11px;color:var(--text2);text-align:right}
+.bar-t{flex:1;height:22px;background:var(--card2);border-radius:10px;overflow:hidden}
+.bar-f{height:100%;border-radius:10px;display:flex;align-items:center;padding-left:7px;font-size:10px;font-weight:700;min-width:22px;transition:width .6s ease-out}
+.tl-year{font-size:13px;font-weight:800;color:var(--accent);margin:18px 0 6px}
+.tl-item{display:flex;gap:10px;padding:6px 0 6px 14px;border-left:2px solid rgba(255,255,255,0.04);margin-left:6px;transition:transform .2s}
+.tl-item:hover{transform:translateX(4px)}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:5px;flex-shrink:0;margin-left:-19px;box-shadow:0 0 8px var(--glow-gold)}
+.tl-name{font-weight:600;font-size:13px}
+.tl-meta{font-size:11px;color:var(--text2)}
+.sync{display:flex;gap:8px;margin:10px 0}
+.sync button,.sync label{flex:1;padding:12px;border-radius:14px;border:none;font-weight:700;font-size:12px;cursor:pointer;text-align:center;transition:transform .2s}
+.sync button:hover,.sync label:hover{transform:translateY(-1px)}
+
+/* ADD MODAL */
+.overlay{position:fixed;inset:0;z-index:2000;background:rgba(5,7,10,0.7);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
+.overlay.on{display:flex}
+.modal{background:linear-gradient(180deg,var(--bg2),var(--bg));border-radius:22px 22px 0 0;padding:18px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto;animation:slideUp .35s;border-top:1px solid rgba(255,255,255,0.06)}
+.modal h2{font-size:18px;font-weight:800;margin-bottom:10px;color:var(--accent)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.mgrid label{display:block;margin-top:4px;font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.mgrid input,.mgrid select{width:100%;padding:9px 7px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:var(--text);font-size:12px;transition:border .2s}
+.mgrid input:focus,.mgrid select:focus{border-color:var(--accent);outline:none}
+.modal label{display:block;margin:8px 0 3px;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.modal input,.modal textarea,.modal select{width:100%;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:var(--text);font-size:14px;transition:border .2s}
+.modal input:focus,.modal textarea:focus{outline:none;border-color:var(--accent)}
+.modal textarea{height:50px;resize:none}
+.mrow{display:flex;gap:6px}.mcol{flex:1;min-width:0}
+.geo-r{padding:9px 11px;margin:2px 0;background:rgba(255,255,255,0.03);border-radius:10px;cursor:pointer;font-size:12px;transition:all .2s}
+.geo-r:active{background:var(--accent);color:var(--bg)}
+.row{display:flex;gap:8px;margin-top:14px}
+.row button{flex:1;padding:13px;border-radius:14px;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.row button:hover{transform:translateY(-1px)}
+.bsave{background:var(--accent);color:var(--bg);box-shadow:0 4px 16px var(--glow-gold)}
+.bcancel{background:rgba(255,255,255,0.04);color:var(--text)}
+.bdel{background:rgba(255,50,50,.08);color:#ff4444;margin-top:6px;padding:10px;border-radius:14px;border:none;width:100%;font-size:13px;cursor:pointer;display:none}
+
+/* DIARY */
+.diary-content{padding:68px 16px 40px;max-width:600px;margin:0 auto;line-height:1.9}
+.diary-content h3{font-size:20px;font-weight:800;margin:36px 0 14px;letter-spacing:-0.3px}
+.diary-content p{color:var(--text2);font-size:14px;margin-top:10px}
+.diary-content p:first-of-type::first-letter{font-size:2.4em;font-weight:800;color:var(--accent);float:left;line-height:1;margin-right:8px;margin-top:4px}
+.diary-content strong{color:var(--text)}
+
+/* LIST */
+.list-v{padding:68px 16px 40px;max-width:540px;margin:0 auto}
+.filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.fbtn{padding:6px 12px;border-radius:14px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--text2);font-size:11px;cursor:pointer;transition:all .25s}
+.fbtn.on{background:var(--accent);color:var(--bg);border-color:var(--accent);box-shadow:0 4px 12px var(--glow-gold)}
+.pc{background:var(--card2);border-radius:var(--r);padding:14px;margin:8px 0;border:1px solid rgba(255,255,255,0.04);transition:transform .2s,box-shadow .2s}
+.pc:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.15)}
+.pc:active{transform:scale(.98)}
+.pc-top{display:flex;justify-content:space-between;align-items:start}
+.pc-name{font-size:15px;font-weight:700;letter-spacing:-0.2px}
+.pc-sub{font-size:11px;color:var(--text2)}
+.pc-badge{font-size:10px;padding:3px 10px;border-radius:10px;font-weight:600}
+.pc-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.pc-tags span{font-size:10px;background:rgba(255,255,255,0.04);padding:3px 8px;border-radius:8px;color:var(--text2)}
+.pc-note{font-size:12px;color:var(--text2);margin-top:6px;font-style:italic;line-height:1.5}
+.pc img{width:100%;height:100px;object-fit:cover;border-radius:12px;margin-top:8px}
+.pc-acts{display:flex;gap:6px;margin-top:8px}
+.pc-acts button{flex:1;padding:8px;border-radius:12px;border:none;font-size:12px;cursor:pointer;font-weight:600;transition:all .2s}
+.pc-acts button:hover{transform:translateY(-1px)}
+.empty{text-align:center;padding:50px 16px;color:var(--text2)}
+
+/* Leaflet */
+.leaflet-popup-content-wrapper{background:var(--bg2)!important;color:var(--text)!important;border-radius:16px!important;box-shadow:0 12px 40px rgba(0,0,0,0.4)!important;border:1px solid rgba(255,255,255,0.06)!important}
+.leaflet-popup-tip{background:var(--bg2)!important}
+.leaflet-control-layers{background:var(--bg2)!important;color:var(--text)!important;border:1px solid rgba(255,255,255,0.06)!important;border-radius:14px!important;font-size:12px!important}
+
+.jo{display:none;position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:900;background:var(--card);backdrop-filter:blur(24px);padding:14px 28px;border-radius:18px;text-align:center;border:1px solid rgba(212,175,55,0.1);animation:fadeIn .5s;box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+
+@media(min-width:600px){.cards{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:480px){.tabs{gap:1px}.tab{padding:5px 8px;font-size:10px}}
+
+/* Tab transitions */
+.v{opacity:0;transition:opacity .3s ease}
+.v.on{opacity:1}
+
+/* Scroll progress bar */
+.scroll-prog{position:fixed;top:52px;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:999;width:0;transition:width .1s}
+
+/* Milestone chips */
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0;-webkit-overflow-scrolling:touch}
+.chip{padding:6px 14px;border-radius:20px;border:1px solid rgba(212,175,55,0.15);background:rgba(212,175,55,0.05);color:var(--text);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .25s;flex-shrink:0}
+.chip:hover,.chip:active{background:var(--accent);color:var(--bg);border-color:var(--accent);transform:scale(1.05)}
+
+/* Quote strip */
+.quote-strip{text-align:center;padding:12px 16px;font-size:13px;font-style:italic;color:var(--text2);transition:opacity .5s;min-height:40px}
+
+/* Dream meter */
+.dream-meter{background:var(--card2);border-radius:14px;padding:14px;margin:12px 0;border:1px solid var(--glass)}
+.dream-bar{height:8px;background:var(--glass);border-radius:4px;overflow:hidden;margin-top:8px}
+.dream-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 1s ease-out}
+
+/* Map legend pills */
+.map-legend{position:fixed;bottom:76px;left:14px;z-index:900;display:flex;gap:4px;flex-wrap:wrap}
+.legend-pill{padding:4px 10px;border-radius:12px;font-size:10px;background:rgba(5,7,10,0.8);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.06);color:var(--text2)}
+
+/* Hover improvements */
+.fab:hover{transform:translateY(-3px) scale(1.05)}
+.card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.25)}
+.chapter:hover{transform:translateX(6px);box-shadow:0 6px 20px rgba(0,0,0,0.2)}
+.citem:hover{transform:translateX(4px);background:rgba(255,255,255,0.06)}
+
+</style>
 </head>
 <body>
 
+<!-- INTRO -->
+<div class="intro" id="intro">
+  <div style="font-size:48px;opacity:0;animation:fadeUp .6s .1s forwards">🌍</div>
+  <h1 style="margin-top:12px">JP Explorer</h1>
+  <p class="tagline">20 Countries · 120+ Places · 45 Years<br>A Sagittarian's Journey Through Life ♐</p>
+  <div style="display:flex;gap:16px;margin-top:16px;opacity:0;animation:fadeUp .8s .8s forwards;font-size:24px">
+    <span title="India">🇮🇳</span><span title="USA">🇺🇸</span><span title="Finland">🇫🇮</span><span title="Germany">🇩🇪</span><span title="France">🇫🇷</span><span title="Switzerland">🇨🇭</span><span title="Norway">🇳🇴</span><span title="Czech Republic">🇨🇿</span>
+  </div>
+  <div class="ctas">
+    <button class="cta cta-primary" onclick="document.getElementById('intro').classList.add('hide');setTimeout(()=>document.getElementById('intro').style.display='none',1200)">🌍 Explore My World</button>
+    <button class="cta cta-secondary" onclick="document.getElementById('intro').classList.add('hide');setTimeout(()=>{document.getElementById('intro').style.display='none';document.getElementById('btnStory').click()},1200)">📖 Watch My Story</button>
+  </div>
+  <p style="font-size:11px;color:var(--text2);margin-top:24px;opacity:0;animation:fadeUp .8s 1.2s forwards">From Chitradurga 🇮🇳 to Mont Blanc 🇫🇷 — every pin is a memory</p>
+</div>
+
+<!-- NAV -->
 <nav class="nav">
-  <div><h1>🌍 JP's Travel World</h1><div class="sub">Born Explorer ♐ · Every place tells a story</div></div>
-  <div class="tabs">
-    <button class="tab on" data-v="vMap">Map</button>
-    <button class="tab" data-v="vInsights">Journey</button>
-    <button class="tab" data-v="vList">Places</button>
+  <div><h1>JP Explorer</h1><div class="sub">🌍 20 Countries · 120+ Memories · Born Explorer ♐</div></div>
+  <div class="nav-r">
+    <div class="tabs">
+      <button class="tab on" data-v="vMap" data-c="#2EC4B6">🗺️</button>
+      <button class="tab" data-v="vJourney" data-c="#D4AF37">⏳</button>
+      <button class="tab" data-v="vDiary" data-c="#48dbfb">📖</button>
+      <button class="tab" data-v="vFamily" data-c="#ff9ff3">👨‍👩‍👧</button>
+      <button class="tab" data-v="vList" data-c="#a29bfe">📍</button>
+    </div>
+    <button class="theme-btn" id="themeBtn">🌙</button>
   </div>
 </nav>
 
 <!-- MAP -->
-<div class="v on" id="vMap"><div id="map"></div><button class="fab fab-add" id="btnAdd">+</button></div>
+<div class="v on" id="vMap">
+  <div id="map"></div>
+  <div class="scroll-prog" id="scrollProg"></div>
+  <div class="map-legend"><span class="legend-pill">🟢 Lived</span><span class="legend-pill">🔴 Visited</span><span class="legend-pill">💗 Born</span><span class="legend-pill">💜 Dream</span></div>
+  <button class="fab fab-add" id="btnAdd">+</button>
+  <button class="fab fab-play" id="btnPlay" title="Play Journey (Timeline)">▶</button>
+  <button class="fab" id="btnPlayGeo" title="Play East → West" style="bottom:24px;right:122px;background:rgba(212,175,55,0.9);box-shadow:0 6px 20px var(--glow-gold);font-size:14px">🌐</button>
+  <button class="fab" id="btnStory" title="Story Mode" style="bottom:24px;right:176px;background:rgba(162,155,254,0.9);box-shadow:0 6px 20px rgba(162,155,254,0.3);font-size:14px">📖</button>
+  <button class="fab fab-rand" id="btnRand" title="Random Memory">🎲</button>
+  <div class="jo" id="jo"><div id="joN" style="font-size:16px;font-weight:700"></div><div id="joM" style="font-size:12px;color:var(--text2);margin-top:2px"></div></div>
+</div>
 
-<!-- INSIGHTS -->
-<div class="v" id="vInsights">
-  <div class="insights">
-    <div class="hero"><h2>My Journey So Far</h2><p>Every pin is a memory, every path a story</p></div>
+<!-- STORY MODE -->
+<div class="story" id="storyMode">
+  <div class="story-prog" id="storyProg"></div>
+  <button class="story-close" id="storyClose">✕</button>
+  <div id="storySlides"></div>
+  <div class="story-nav" id="storyNav"></div>
+</div>
+
+<!-- JOURNEY -->
+<div class="v" id="vJourney">
+  <div class="journey">
+    <div class="hero">
+      <div style="font-size:36px">🌍</div>
+      <h2 style="margin-top:8px">My Journey So Far</h2>
+      <p>From a quiet town in Karnataka to 20 countries across 4 continents.<br>Every pin is a memory. Every road is a story.</p>
+    </div>
+    <!-- Sagittarius -->
+    <div style="background:linear-gradient(135deg,rgba(212,175,55,0.06),rgba(162,155,254,0.05));border-radius:var(--r);padding:18px;margin:14px 0;border:1px solid rgba(212,175,55,0.08)">
+      <div style="text-align:center;font-size:28px">♐</div>
+      <h3 style="text-align:center;font-size:16px;font-weight:800;color:var(--accent);margin-top:4px">Born Sagittarius · Born Explorer</h3>
+      <p style="font-size:12px;color:var(--text2);text-align:center;margin-top:8px;line-height:1.6;font-style:italic">
+        "Travel is not just a hobby — it's part of who I am."
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+        <div style="background:var(--glass);border-radius:12px;padding:10px;text-align:center"><span style="font-size:16px">🌍</span><div style="font-size:10px;color:var(--text2);margin-top:4px">Adventurous & Optimistic</div></div>
+        <div style="background:var(--glass);border-radius:12px;padding:10px;text-align:center"><span style="font-size:16px">🔥</span><div style="font-size:10px;color:var(--text2);margin-top:4px">Spontaneous over Scheduled</div></div>
+        <div style="background:var(--glass);border-radius:12px;padding:10px;text-align:center"><span style="font-size:16px">🧭</span><div style="font-size:10px;color:var(--text2);margin-top:4px">Meaningful, not just Relaxing</div></div>
+        <div style="background:var(--glass);border-radius:12px;padding:10px;text-align:center"><span style="font-size:16px">✨</span><div style="font-size:10px;color:var(--text2);margin-top:4px">Journey > Destination</div></div>
+      </div>
+      <p style="font-size:11px;color:var(--text2);text-align:center;margin-top:10px;line-height:1.5">
+        🏔️ Faraway destinations · 🌊 Cultural richness · 🚗 Freedom on the road<br>
+        Enthusiastic · Open · Restless if routine · Happiest when roaming
+      </p>
+    </div>
+
+    <div id="otd"></div>
+
+    <div class="quote-strip" id="quoteStrip"></div>
+
+    <div class="chips" id="milestones">
+      <span class="chip" data-y="1980">🎒 Born</span>
+      <span class="chip" data-y="1998">🎓 Engineering</span>
+      <span class="chip" data-y="2002">💼 First Job</span>
+      <span class="chip" data-y="2004">🛫 First Flight</span>
+      <span class="chip" data-y="2007">🇰🇷 Korea</span>
+      <span class="chip" data-y="2010">🇺🇸 Silicon Valley</span>
+      <span class="chip" data-y="2019">👶 Daughter</span>
+      <span class="chip" data-y="2022">🇩🇪 Germany</span>
+      <span class="chip" data-y="2025">🏔️ Mont Blanc</span>
+    </div>
+
+    <div class="dream-meter" id="dreamMeter"></div>
+
     <div class="cards" id="iCards"></div>
-    <div class="sec">🏠 Life Chapters</div>
-    <div id="iChapters"></div>
-    <div class="sec">🗺️ Countries</div>
-    <div id="iCountries"></div>
-    <div class="sec">🚀 How I Travel</div>
-    <div id="iTravel"></div>
-    <div class="sec">⏳ Timeline</div>
-    <div id="iTimeline"></div>
+    <div class="sec">🏠 Life Chapters</div><div id="iChap"></div>
+    <div class="sec">🗺️ Countries</div><div id="iCountries"></div>
+    <div class="sec">🚀 How I Travel</div><div id="iTravel"></div>
+    <div class="sec">⏳ Timeline</div><div id="iTL"></div>
+    <div class="sec">🚗 My Rides</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div class="chapter" style="border-left-color:#2ecc71"><h4>🚲 Hero Ranger</h4><p>1995 → 1998 · Tumkur<br>First cycle! Freedom on two wheels.</p></div>
+      <div class="chapter" style="border-left-color:#95a5a6"><h4>🛵 Luna Super</h4><p>1998 → 2000 · Tumkur<br>Moped days. Bridge between cycle and bike.</p></div>
+      <div class="chapter" style="border-left-color:var(--accent)"><h4>🏍️ Hero Splendor</h4><p>2000 → 2008 · Tumkur/Bangalore<br>100 trips to Devarayanadurga! Legendary.</p></div>
+      <div class="chapter" style="border-left-color:var(--accent3)"><h4>🚗 Hyundai i10</h4><p>2008 → 2016 · India<br>First car! Faithful companion for 8 years.</p></div>
+      <div class="chapter" style="border-left-color:var(--accent)"><h4>🚗 Honda CR-V</h4><p>2014 → 2016 · USA<br>Silicon Valley ride. Freedom earned.</p></div>
+      <div class="chapter" style="border-left-color:#2ecc71"><h4>🚗 Maruti Brezza AT</h4><p>2020 → present · India<br>Family SUV. All of Karnataka explored.</p></div>
+      <div class="chapter" style="border-left-color:var(--accent2)"><h4>🚗 Toyota Yaris SUV</h4><p>Oct 2025 → present · Germany<br>European explorer. Alps, Strasbourg, Geneva, Mont Blanc.</p></div>
+    </div>
     <div class="sec">💾 Backup</div>
     <div class="sync">
-      <button class="sync-exp" id="btnExp">📤 Export</button>
-      <label class="sync-imp">📥 Import<input type="file" id="btnImp" accept=".json" style="display:none"></label>
+      <button id="btnExp" style="background:var(--accent3);color:#000">📤 Export</button>
+      <label style="background:var(--accent2);color:#000;border-radius:14px;display:block">📥 Import<input type="file" id="btnImp" accept=".json" style="display:none"></label>
     </div>
+  </div>
+</div>
+
+<!-- FAMILY -->
+<div class="v" id="vFamily">
+  <div style="padding:68px 16px 40px;max-width:600px;margin:0 auto;line-height:1.8">
+
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:36px">👨‍👩‍👧‍👦</div>
+      <h2 style="font-size:28px;font-weight:800;color:var(--accent);margin-top:8px">My Family — My Roots</h2>
+      <p style="color:var(--text2);font-size:14px;margin-top:6px;font-style:italic;line-height:1.6">They are my life. No matter how far I travel,<br>my strength is my family and my compass is their love. 🙏</p>
+    </div>
+
+    <!-- Parents -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0">
+      <div style="background:var(--card2);border-radius:16px;padding:18px;border:1px solid var(--glass);border-top:3px solid var(--accent3)">
+        <div style="font-size:24px;text-align:center">👨</div>
+        <h3 style="font-size:16px;font-weight:800;text-align:center;margin-top:6px">K B Govinda Reddy</h3>
+        <p style="text-align:center;font-size:11px;color:var(--text2)">Father</p>
+        <div style="margin-top:10px;font-size:12px;color:var(--text2);line-height:1.6">
+          <div>📍 Born: <strong style="color:var(--text)">Bellary, India</strong></div>
+          <div>🏠 Settled: <strong style="color:var(--text)">Tumkur</strong> (1980)</div>
+          <div>💼 Worked in Tumkur till retirement</div>
+          <div>📌 Lives: <strong style="color:var(--text)">Tumkur</strong></div>
+        </div>
+      </div>
+      <div style="background:var(--card2);border-radius:16px;padding:18px;border:1px solid var(--glass);border-top:3px solid #ff9ff3">
+        <div style="font-size:24px;text-align:center">👩</div>
+        <h3 style="font-size:16px;font-weight:800;text-align:center;margin-top:6px">Susheela</h3>
+        <p style="text-align:center;font-size:11px;color:var(--text2)">Mother</p>
+        <div style="margin-top:10px;font-size:12px;color:var(--text2);line-height:1.6">
+          <div>📍 Born: <strong style="color:var(--text)">Chitradurga, India</strong></div>
+          <div>🏠 Settled: <strong style="color:var(--text)">Tumkur</strong> (1980)</div>
+          <div>💛 Homemaker — heart of the family</div>
+          <div>📌 Lives: <strong style="color:var(--text)">Tumkur</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Family Milestone -->
+    <div style="text-align:center;padding:14px;margin:16px 0;background:var(--card2);border-radius:16px;border-left:3px solid var(--accent2)">
+      <div style="font-size:20px">👶</div>
+      <p style="font-size:14px;font-weight:700;margin-top:4px">JP's Daughter Born: 2019</p>
+      <p style="font-size:12px;color:var(--text2)">Life's greatest gift ❤️</p>
+    </div>
+
+    <!-- Children -->
+    <h3 style="font-size:16px;font-weight:800;margin:24px 0 12px;color:var(--accent2)">👨‍👩‍👧‍👦 Children</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:var(--card2);border-radius:16px;padding:16px;border:1px solid var(--glass)">
+        <div style="font-size:20px;text-align:center">👦</div>
+        <h4 style="font-size:14px;font-weight:700;text-align:center;margin-top:4px">JP</h4>
+        <div style="font-size:11px;color:var(--text2);text-align:center;margin-top:4px">
+          Born: Dec 11, 1980 · Chitradurga ♐<br>
+          19 countries · 101 places · Born Explorer
+        </div>
+      </div>
+      <div style="background:var(--card2);border-radius:16px;padding:16px;border:1px solid var(--glass)">
+        <div style="font-size:20px;text-align:center">👧</div>
+        <h4 style="font-size:14px;font-weight:700;text-align:center;margin-top:4px">Roopa</h4>
+        <div style="font-size:11px;color:var(--text2);text-align:center;margin-top:4px">
+          Born: Mar 30, 1983 · Chitradurga<br>
+          Lives in Bangalore
+        </div>
+      </div>
+    </div>
+
+    <!-- Family Timeline -->
+    <h3 style="font-size:16px;font-weight:800;margin:24px 0 12px;color:var(--accent)">⏳ Family Timeline</h3>
+
+    <div style="border-left:2px solid var(--glass);margin-left:8px;padding-left:16px">
+      <div style="padding:8px 0"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent2);margin-left:-22px;float:left;margin-top:4px;box-shadow:0 0 8px rgba(254,202,87,.4)"></div><div style="margin-left:4px"><strong style="font-size:13px">1980</strong><br><span style="font-size:12px;color:var(--text2)">💍 Govinda Reddy & Susheela married · Settled in Tumkur</span></div></div>
+      <div style="padding:8px 0"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent);margin-left:-22px;float:left;margin-top:4px;box-shadow:0 0 8px rgba(255,107,107,.4)"></div><div style="margin-left:4px"><strong style="font-size:13px">1980</strong><br><span style="font-size:12px;color:var(--text2)">👶 JP born in Chitradurga (Dec 11) ♐</span></div></div>
+      <div style="padding:8px 0"><div style="width:10px;height:10px;border-radius:50%;background:#ff9ff3;margin-left:-22px;float:left;margin-top:4px;box-shadow:0 0 8px rgba(255,159,243,.4)"></div><div style="margin-left:4px"><strong style="font-size:13px">1983</strong><br><span style="font-size:12px;color:var(--text2)">👶 Roopa born in Chitradurga (Mar 30)</span></div></div>
+      <div style="padding:8px 0"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent3);margin-left:-22px;float:left;margin-top:4px;box-shadow:0 0 8px rgba(72,219,251,.4)"></div><div style="margin-left:4px"><strong style="font-size:13px">1980s–2000s</strong><br><span style="font-size:12px;color:var(--text2)">🏠 Family life in Tumkur · Regular visits to Bellary & Kunabeva · Dharmasthala pilgrimages</span></div></div>
+      <div style="padding:8px 0"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent2);margin-left:-22px;float:left;margin-top:4px;box-shadow:0 0 8px rgba(254,202,87,.4)"></div><div style="margin-left:4px"><strong style="font-size:13px">2017</strong><br><span style="font-size:12px;color:var(--text2)">💍 JP married</span></div></div>
+      <div style="padding:8px 0"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent);margin-left:-22px;float:left;margin-top:4px;box-shadow:0 0 8px rgba(255,107,107,.4)"></div><div style="margin-left:4px"><strong style="font-size:13px">2019</strong><br><span style="font-size:12px;color:var(--text2)">👶 JP's daughter born — the next generation ❤️</span></div></div>
+      <div style="padding:8px 0"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent3);margin-left:-22px;float:left;margin-top:4px;box-shadow:0 0 8px rgba(72,219,251,.4)"></div><div style="margin-left:4px"><strong style="font-size:13px">Present</strong><br><span style="font-size:12px;color:var(--text2)">🏠 Parents in Tumkur · Roopa in Bangalore · JP in Germany · Family across the world, connected by love</span></div></div>
+    </div>
+
+    <!-- Family Places -->
+    <h3 style="font-size:16px;font-weight:800;margin:24px 0 12px;color:var(--accent2)">📍 Our Family Places</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:var(--card2);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass)"><div style="font-size:20px">🏠</div><div style="font-size:13px;font-weight:700;margin-top:4px">Tumkur</div><div style="font-size:10px;color:var(--text2)">Home base since 1980</div></div>
+      <div style="background:var(--card2);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass)"><div style="font-size:20px">🎒</div><div style="font-size:13px;font-weight:700;margin-top:4px">Chitradurga</div><div style="font-size:10px;color:var(--text2)">Where JP & Roopa were born</div></div>
+      <div style="background:var(--card2);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass)"><div style="font-size:20px">🙏</div><div style="font-size:13px;font-weight:700;margin-top:4px">Bellary</div><div style="font-size:10px;color:var(--text2)">Father's native · Hettina Budhihala</div></div>
+      <div style="background:var(--card2);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass)"><div style="font-size:20px">💛</div><div style="font-size:13px;font-weight:700;margin-top:4px">Kunabeva</div><div style="font-size:10px;color:var(--text2)">Mother's native · Childhood summers</div></div>
+      <div style="background:var(--card2);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass)"><div style="font-size:20px">🙏</div><div style="font-size:13px;font-weight:700;margin-top:4px">Dharmasthala</div><div style="font-size:10px;color:var(--text2)">Family deity · Sri Manjunatha</div></div>
+      <div style="background:var(--card2);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass)"><div style="font-size:20px">🏙️</div><div style="font-size:13px;font-weight:700;margin-top:4px">Bangalore</div><div style="font-size:10px;color:var(--text2)">Roopa's home · JP's decade</div></div>
+    </div>
+
+    <div style="text-align:center;padding:20px;margin:24px 0;background:var(--card2);border-radius:16px;border:1px solid var(--glass)">
+      <p style="font-size:16px;font-style:italic;color:var(--text2)">"No matter how far I travel, my roots are in Tumkur, my strength is my family, and my compass is their love."</p>
+      <p style="margin-top:10px;font-size:14px">🙏 Dedicated to Appa & Amma</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- DIARY -->
+<div class="v" id="vDiary">
+  <div class="diary-content">
+
+    <div style="text-align:center;padding:24px 0">
+      <div style="font-size:36px">📖</div>
+      <h2 style="font-size:28px;font-weight:800;color:var(--accent);margin-top:8px">The Diary of JP</h2>
+      <p style="color:var(--text2);font-size:14px;margin-top:8px;font-style:italic;line-height:1.6">From Chitradurga to Mont Blanc — 20 countries, 7 chapters, one incredible life.<br>A Sagittarian who turned every setback into a comeback. ♐</p>
+    </div>
+
+    <div style="text-align:center;padding:16px;margin:16px 0;background:linear-gradient(135deg,rgba(212,175,55,0.06),rgba(46,196,182,0.04));border-radius:16px;border-left:3px solid var(--accent);font-style:italic;color:var(--text2);font-size:14px;line-height:1.7">
+      "I evolve from average to excellent when aligned. I rise stronger after each low point. I grow most through travel and challenge."
+    </div>
+
+    <!-- Chapter 1 -->
+    <h3 style="font-size:18px;font-weight:800;margin:30px 0 12px;color:var(--accent)">📖 Chapter 1 — Origins (1980–1998)</h3>
+    <p style="color:var(--text2);font-size:14px">
+      I was born on December 11, 1980, in <strong style="color:var(--text)">Chitradurga</strong>, a small historic town in Karnataka, India. A Sagittarian from day one — the explorer was written in the stars. ♐
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      I grew up in a middle-class family. Quiet, obedient, curious. My childhood was split between Chitradurga and my parents' native places — <strong style="color:var(--text)">Bellary</strong> (father's side, Hettina Budhihala — our family deity) and <strong style="color:var(--text)">Kunabeva</strong> (mother's side). I must have visited each over a hundred times. Those dusty roads, temple bells, and summer holidays shaped who I am.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      <strong style="color:var(--text)">Dharmasthala</strong> became my spiritual anchor — Sri Manjunatha Temple. Every visit brought peace. <strong style="color:var(--text)">Raichur</strong> was another frequent stop — family connections that kept the roots strong.
+    </p>
+
+    <!-- Chapter 2 -->
+    <h3 style="font-size:18px;font-weight:800;margin:30px 0 12px;color:var(--accent2)">🎓 Chapter 2 — Education & Discovery (1998–2002)</h3>
+    <p style="color:var(--text2);font-size:14px">
+      In 1998, I moved to <strong style="color:var(--text)">Tumkur</strong> for engineering. I started with Computer Science, struggled with English and teacher fear, then made the decision that changed everything — <strong style="color:var(--text)">switched to Telecom Engineering</strong>. It was a game changer. I graduated in the top 2 of my class.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      College wasn't just studies. It was freedom. Road trips on rickety buses to <strong style="color:var(--text)">Mysore, Goa, Gokarna, Mangalore, Coorg, Bandipur, Ooty</strong>. My first beach trip to Goa was unforgettable. Coorg's coffee plantations, Ooty's misty hills, Gokarna's hidden paradise. <strong style="color:var(--text)">Kemmangundi</strong> in the Kudremukh hills became a favourite I'd return to for 17 years.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      I also visited <strong style="color:var(--text)">Hyderabad</strong> and made a spiritual trip to <strong style="color:var(--text)">Srisailam</strong> — the Jyotirlinga temple. <strong style="color:var(--text)">Jog Falls</strong> and <strong style="color:var(--text)">Agumbe</strong> became regular escapes — raw nature at its best.
+    </p>
+
+    <!-- Chapter 3 -->
+    <h3 style="font-size:18px;font-weight:800;margin:30px 0 12px;color:var(--accent3)">💼 Chapter 3 — First Steps (2002–2004)</h3>
+    <p style="color:var(--text2);font-size:14px">
+      2002 was brutal. The dot-com recession hit. Months of job searching, rejection after rejection. It built a resilience that would carry me through every storm ahead.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      Finally, in September 2002, I landed my first job at <strong style="color:var(--text)">Velankani Software Systems</strong> in Bangalore. Testing role. The door had opened. I was 21, earning my own money, living in India's tech capital. Life had begun.
+    </p>
+
+    <!-- Chapter 4 -->
+    <h3 style="font-size:18px;font-weight:800;margin:30px 0 12px;color:var(--accent)">🌍 Chapter 4 — Wipro & The World Opens (2004–2009)</h3>
+    <p style="color:var(--text2);font-size:14px">
+      October 2004 — I joined <strong style="color:var(--text)">Wipro Ltd</strong>. This would be a decade-long chapter that transformed my life.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      Within months, I was on a plane to <strong style="color:var(--text)">Espoo, Finland</strong>. My first foreign trip. My first onsite. December 2004. I stepped out into -19°C. Snow everywhere. Everything was new, magical, overwhelming. I saw the world differently after that. The quiet kid from Chitradurga was standing in Scandinavia.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      During that stay, I took a <strong style="color:var(--text)">Viking Lines cruise</strong> with friends — <strong style="color:var(--text)">Helsinki to Stockholm</strong> and back. My first cruise. My first time in Sweden. The Scandinavian winter was harsh but beautiful.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      In 2007, I was sent to <strong style="color:var(--text)">Suwon, South Korea</strong> — Samsung client, long-term onsite. I explored <strong style="color:var(--text)">Seoul</strong> and <strong style="color:var(--text)">Pyeongchang</strong>. Back home, I bought a plot and started building a house. Life was accelerating. Transit stops in <strong style="color:var(--text)">Singapore</strong> and <strong style="color:var(--text)">Bangkok</strong> added more stamps to the passport.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      2008 brought me to <strong style="color:var(--text)">Pittsburgh, USA</strong> — a 4-month onsite from August to December. I bought my first car in India — a <strong style="color:var(--text)">Hyundai i10</strong>. From Pittsburgh, I explored the East Coast by car: <strong style="color:var(--text)">Niagara Falls</strong> (breathtaking), <strong style="color:var(--text)">New York</strong>, <strong style="color:var(--text)">Washington DC</strong>, <strong style="color:var(--text)">Ohio</strong>, <strong style="color:var(--text)">Maryland</strong>, and the underground wonder of <strong style="color:var(--text)">Luray Caverns</strong>. Then the 2008 recession hit. The world shook, but the spirit didn't.
+    </p>
+
+    <!-- Chapter 5 -->
+    <h3 style="font-size:18px;font-weight:800;margin:30px 0 12px;color:var(--accent2)">🇺🇸 Chapter 5 — The American Dream (2010–2016)</h3>
+    <p style="color:var(--text2);font-size:14px">
+      January 2010. H1B visa approved. I moved to <strong style="color:var(--text)">San Jose, California</strong>. Silicon Valley. The dream was real.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      The next six years were the most adventurous of my life. <strong style="color:var(--text)">San Francisco</strong> became my second home — 20-25 visits. Golden Gate, Fisherman's Wharf, almost every other weekend.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      <strong style="color:var(--text)">Yosemite National Park</strong> became my favourite place on Earth. I went every single year — 2011, 2012, 2013, 2014, 2015, 2016. Half Dome, El Capitan, the waterfalls. Pure magic, every time.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      <strong style="color:var(--text)">Lake Tahoe</strong> was another love — visited in ALL seasons. Snow in winter, crystal blue in summer. 8 visits across 2013-2015. <strong style="color:var(--text)">Redwood National Park</strong> — walking among the tallest trees on Earth, humbling every time.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      The epic 2013 road trip: <strong style="color:var(--text)">Yellowstone</strong> (Old Faithful, bison, hot springs) → <strong style="color:var(--text)">Grand Teton</strong> (majestic mountains) → <strong style="color:var(--text)">Niagara Falls</strong> again → <strong style="color:var(--text)">New York</strong>. That same year, <strong style="color:var(--text)">Dubai</strong> for vacation.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      2014 was peak America: <strong style="color:var(--text)">Grand Canyon</strong> (West and South Rim — standing over the abyss on the Skywalk), <strong style="color:var(--text)">Death Valley</strong>, <strong style="color:var(--text)">Las Vegas</strong>, <strong style="color:var(--text)">San Diego</strong>, a <strong style="color:var(--text)">cruise from LA to Baja California, Mexico</strong>. I became a full-time US employee and bought a <strong style="color:var(--text)">Honda CR-V</strong>. Freedom earned.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      <strong style="color:var(--text)">Singapore</strong> got a proper visit in 2014. <strong style="color:var(--text)">Shirdi</strong> twice — 2012 and 2015. <strong style="color:var(--text)">Chennai</strong> twice. The world was open.
+    </p>
+
+    <!-- Chapter 6 -->
+    <h3 style="font-size:18px;font-weight:800;margin:30px 0 12px;color:#636e72">🔄 Chapter 6 — Return & Rebuild (2016–2022)</h3>
+    <p style="color:var(--text2);font-size:14px">
+      2016 brought the storm. Layoff. Flight anxiety disorder. I returned to India. It was a low point — but looking back, it was the beginning of the deepest inner work of my life.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      <strong style="color:var(--text)">Abu Dhabi</strong> in 2016. Back to Bangalore. Rebuilding. In 2018, <strong style="color:var(--text)">Bangkok and Pattaya</strong> — a vacation that reminded me the explorer was still alive. <strong style="color:var(--text)">Thailand</strong> was vibrant, warm, healing.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      2019 — <strong style="color:var(--text)">my daughter was born</strong>. Life's greatest gift. Everything changed. ❤️ I visited <strong style="color:var(--text)">New Delhi and Noida</strong> that year. Got a <strong style="color:var(--text)">Maruti Brezza Automatic</strong> — the family car.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      Road trips resumed: <strong style="color:var(--text)">Ooty</strong> revisited in 2023 (this time in my own car, not a college bus). <strong style="color:var(--text)">Wayanad</strong> in 2024 — Kerala's green paradise through the Western Ghats. <strong style="color:var(--text)">Udupi, Malpe Beach, Blue Lagoon, Murudeshwara</strong> — the Karnataka coast in November 2024. <strong style="color:var(--text)">Bandipur</strong> again in 2024.
+    </p>
+
+    <!-- Chapter 7 -->
+    <h3 style="font-size:18px;font-weight:800;margin:30px 0 12px;color:var(--accent3)">🇪🇺 Chapter 7 — Europe (2022–Present)</h3>
+    <p style="color:var(--text2);font-size:14px">
+      2022 — a fresh start. I moved to <strong style="color:var(--text)">Aachen, Germany</strong>. NRW. New country, new language, new chapter. The explorer was back.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      By train and bus, I explored: <strong style="color:var(--text)">Düsseldorf</strong> (10+ times), <strong style="color:var(--text)">Cologne</strong> (the Dom!), <strong style="color:var(--text)">Bonn</strong> (Beethoven's city), <strong style="color:var(--text)">Dortmund, Wuppertal, Hamburg, Frankfurt</strong>. <strong style="color:var(--text)">Eifel Rursee</strong> became my local escape — 4-6 visits across all seasons. <strong style="color:var(--text)">Monschau</strong>, the fairy tale village, 3-4 times. <strong style="color:var(--text)">Eupen</strong>, German-speaking Belgium, right next door.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      Across the borders: <strong style="color:var(--text)">Maastricht</strong> (3-4 times), <strong style="color:var(--text)">Liège, Brussels, Antwerp, Ostend, Bruges</strong> (medieval fairy tale!), <strong style="color:var(--text)">Dinant</strong> (saxophone birthplace), <strong style="color:var(--text)">Radhadesh</strong> (ISKCON temple castle — spiritual peace in Europe). <strong style="color:var(--text)">Amsterdam</strong> in 2023 — canals, bikes, Van Gogh. <strong style="color:var(--text)">Luxembourg</strong> twice.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      <strong style="color:var(--text)">Paris</strong> — twice, 2023 and 2024. The Eiffel Tower, the Louvre, the Seine. Magical both times. <strong style="color:var(--text)">Switzerland</strong> in 2024: <strong style="color:var(--text)">Lucerne</strong> (Swiss perfection), <strong style="color:var(--text)">Rhine Falls</strong> (Europe's largest waterfall), <strong style="color:var(--text)">Zurich</strong>.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      The Scandinavia road trip in 2024: drove through <strong style="color:var(--text)">Denmark</strong>, across the famous <strong style="color:var(--text)">Øresund Bridge</strong> (undersea!), through <strong style="color:var(--text)">Sweden</strong>, all the way to <strong style="color:var(--text)">Oslo, Norway</strong>. Returned by car ferry across the Baltic. Epic.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      In October 2025, I got my <strong style="color:var(--text)">Toyota Yaris SUV</strong>. The European explorer had wheels.
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      December 2025 — the trip of a lifetime: <strong style="color:var(--text)">Strasbourg</strong> (Christmas markets), <strong style="color:var(--text)">Geneva</strong> (Jet d'Eau, Lake Geneva), <strong style="color:var(--text)">Chamonix</strong>... and then <strong style="color:var(--text)">Mont Blanc</strong>. 🏔️
+    </p>
+    <p style="color:var(--text2);font-size:14px;margin-top:10px">
+      <strong style="color:var(--text);font-size:16px">Mont Blanc was heaven on Earth.</strong> Standing at the roof of Europe, the Alps stretching in every direction, I felt everything — every struggle, every comeback, every mile — had led to this moment. The quiet boy from Chitradurga was standing on top of the world.
+    </p>
+
+    <!-- Closing -->
+    <div style="text-align:center;padding:24px;margin:30px 0;background:linear-gradient(135deg,rgba(212,175,55,0.06),rgba(46,196,182,0.04));border-radius:20px;border:1px solid rgba(212,175,55,0.1)">
+      <div style="font-size:32px">🌍</div>
+      <p style="font-size:22px;font-weight:800;color:var(--accent);margin-top:8px">120+ Places · 20 Countries · 4 Continents</p>
+      <p style="color:var(--text2);font-size:14px;margin-top:12px;font-style:italic;line-height:1.7">"With less fear and more trust in self.<br>Aligned with core values.<br>Making space for joy, not just responsibility."</p>
+      <div style="margin-top:16px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:12px;padding:4px 12px;border-radius:10px;background:var(--glass);color:var(--text2)">🚲 Hero Ranger → 🏍️ Splendor → 🚗 i10 → 🚗 CR-V → 🚗 Brezza → 🚗 Yaris</span>
+      </div>
+      <div style="margin-top:8px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:12px;padding:4px 12px;border-radius:10px;background:var(--glass);color:var(--text2)">🏢 Velankani → Wipro → Silicon Valley → Germany</span>
+      </div>
+      <p style="color:var(--text2);font-size:13px;margin-top:12px">❤️ Daughter 2019 · 🙏 Roots in Tumkur · 🏔️ Mont Blanc is heaven</p>
+      <p style="margin-top:16px;font-size:18px;font-weight:700;color:var(--accent)">The journey continues... ♐</p>
+      <p style="font-size:11px;color:var(--text2);margin-top:8px">From Devarayanadurga on a Hero Ranger to Mont Blanc in a Toyota Yaris</p>
+    </div>
+
   </div>
 </div>
 
@@ -56,39 +610,498 @@
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="overlay" id="ov">
-  <div class="modal">
-    <h2 id="mTitle">Add Memory</h2>
-    <label>How do you remember this place?</label>
-    <select id="iSt"><option value="visited">✅ Visited</option><option value="lived">🏠 Lived Here</option><option value="birthplace">🎒 Where I Was Born</option><option value="transit">🚏 Passing Through</option><option value="wishlist">🔮 Dream Destination</option></select>
-    <label>Place</label>
-    <input type="text" id="iNm" placeholder="Search a city or place...">
-    <div id="gR" style="max-height:130px;overflow-y:auto;margin-top:3px"></div>
-    <label>Country</label>
-    <input type="text" id="iCo" placeholder="Auto-filled">
-    <label>When</label>
-    <input type="date" id="iDt">
-    <label>Category</label>
-    <select id="iCat"><option value="city">🏙️ City</option><option value="nature">🌿 Nature</option><option value="beach">🏖️ Beach</option><option value="mountain">⛰️ Mountain</option><option value="food">🍽️ Food</option><option value="work">💼 Work</option><option value="other">📍 Other</option></select>
-    <label>How did you get there?</label>
-    <select id="iTr"><option value="flight">✈️ Flight</option><option value="own-car">🚗 Own Car</option><option value="rental">🚙 Rental</option><option value="train">🚆 Train</option><option value="bus">🚌 Bus</option><option value="cycle">🚲 Cycle</option><option value="walk">🚶 Walk</option><option value="boat">⛴️ Boat</option><option value="other">🧭 Other</option></select>
-    <label>Times visited</label>
-    <input type="number" id="iVis" min="1" value="1" style="width:80px">
-    <label>Rating</label>
-    <select id="iRat"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
-    <label>✨ Memory highlight</label>
-    <input type="text" id="iMem" placeholder="One line that captures this place...">
-    <label>Notes</label>
-    <textarea id="iNo" placeholder="The story behind this place..."></textarea>
-    <label>Photo</label>
-    <input type="file" id="iPh" accept="image/*" style="padding:6px">
-    <div id="phPrev" style="margin-top:4px"></div>
-    <div class="row"><button class="bcancel" id="btnX">Cancel</button><button class="bsave" id="btnS">Save Memory</button></div>
-    <button class="bdel" id="btnD">🗑️ Remove this place</button>
+<!-- PLACE DETAIL -->
+<div class="pm-ov" id="pmOv">
+  <div class="pm">
+    <img class="pm-hero" id="pmImg" src="">
+    <div class="pm-body">
+      <div class="pm-name" id="pmName"></div>
+      <div class="pm-sub" id="pmSub"></div>
+      <div class="pm-badges" id="pmBadges"></div>
+      <div class="pm-stars" id="pmStars"></div>
+      <div class="pm-mem" id="pmMem" style="display:none"></div>
+      <div class="pm-notes" id="pmNotes"></div>
+      <div class="pm-acts">
+        <button style="background:var(--card2);color:var(--text)" onclick="document.getElementById('pmOv').classList.remove('on')">Close</button>
+        <button style="background:var(--accent);color:#fff" id="pmEdit">✏️ Edit</button>
+        <button style="background:var(--accent4);color:#fff" id="pmStory">📖 Story</button>
+      </div>
+    </div>
   </div>
 </div>
 
-<script src="app.js?v=2"></script>
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="ov">
+  <div class="modal">
+    <h2 id="mTitle">Add Memory</h2>
+    <div class="mgrid">
+      <div><label>Status</label><select id="iSt"><option value="visited">✅ Visited</option><option value="lived">🏠 Lived</option><option value="birthplace">🎒 Born</option><option value="transit">🚏 Transit</option><option value="wishlist">🔮 Dream</option></select></div>
+      <div><label>Category</label><select id="iCat"><option value="city">🏙️</option><option value="nature">🌿</option><option value="beach">🏖️</option><option value="mountain">⛰️</option><option value="food">🍽️</option><option value="work">💼</option><option value="other">📍</option></select></div>
+      <div><label>Travel</label><select id="iTr"><option value="flight">✈️</option><option value="own-car">🚗</option><option value="rental">🚙</option><option value="train">🚆</option><option value="bus">🚌</option><option value="cycle">🚲</option><option value="walk">🚶</option><option value="boat">⛴️</option></select></div>
+      <div><label>Rating</label><select id="iRat"><option value="5">⭐5</option><option value="4">⭐4</option><option value="3">⭐3</option><option value="2">⭐2</option><option value="1">⭐1</option></select></div>
+      <div><label>From</label><input type="date" id="iDt"></div>
+      <div id="dtToW" style="display:none"><label>To</label><input type="date" id="iDtTo"></div>
+      <div><label>Visits</label><input type="number" id="iVis" min="1" value="1"></div>
+      <div><label>Reason</label><select id="iRsn"><option value="personal">✈️</option><option value="work">💼</option><option value="work_onsite">🏢</option><option value="education">🎓</option><option value="family">👨‍👩‍👧</option><option value="vacation">🧳</option></select></div>
+      <div><label>Visible</label><select id="iPub"><option value="true">🌍</option><option value="false">🔒</option></select></div>
+    </div>
+    <label>Place</label>
+    <input type="text" id="iNm" placeholder="Search city...">
+    <div id="gR" style="max-height:80px;overflow-y:auto;margin-top:3px"></div>
+    <div class="mrow">
+      <div class="mcol"><label>Country</label><input type="text" id="iCo" placeholder="Auto"></div>
+      <div class="mcol"><label>Company</label><input type="text" id="iComp" placeholder="Optional"></div>
+    </div>
+    <label>✨ Memory</label>
+    <input type="text" id="iMem" placeholder="One line that captures this place...">
+    <div class="mrow">
+      <div class="mcol" style="flex:2"><label>Notes</label><textarea id="iNo" placeholder="Story..."></textarea></div>
+      <div class="mcol"><label>Photo</label><input type="file" id="iPh" accept="image/*" style="padding:3px;font-size:11px"><div id="phPrev" style="margin-top:3px"></div></div>
+    </div>
+    <div class="row"><button class="bcancel" id="btnX">Cancel</button><button class="bsave" id="btnS">Save</button></div>
+    <button class="bdel" id="btnD">🗑️ Remove</button>
+  </div>
+</div>
+
+<script>
+const SEED_DATA = [
+  {id:"bp1",img1:"photos/asia/chitradurga-india/01.jpg",img2:"photos/asia/chitradurga-india/02.jpg",name:"Chitradurga",country:"India",lat:14.2226,lng:76.3987,status:"birthplace",cat:"city",date:"1980-12-11",travel:"other",visits:50,rating:5,memory:"Where it all began ♐ Sagittarian born",notes:"Born in a middle-class Indian family. Quiet, obedient child.",reason:"personal",company:"",chapter:"Origins",public:true},
+  {id:"ed1",img1:"photos/asia/tumkur-india/01.jpg",img2:"photos/asia/tumkur-india/02.jpg",name:"Tumkur",country:"India",lat:13.3379,lng:77.1173,status:"lived",cat:"city",date:"1998-06-01",dateTo:"2002-05-01",travel:"bus",visits:1,rating:4,memory:"Engineering in Telecom — the game changer",notes:"Switched from Mechanical to Telecom Engineering. Top 2 in final year. College life shaped everything.",reason:"education",company:"",chapter:"Education",public:true},
+  {id:"ct1",img1:"photos/asia/mysore-india/01.jpg",img2:"photos/asia/mysore-india/02.jpg",name:"Mysore",country:"India",lat:12.2958,lng:76.6394,status:"visited",cat:"city",date:"2000-01-01",travel:"bus",visits:2,rating:4,memory:"College road trips with friends",notes:"",reason:"personal",company:"",chapter:"Education",public:true},
+  {id:"ct2",img1:"photos/asia/goa-india/01.jpg",img2:"photos/asia/goa-india/02.jpg",name:"Goa",country:"India",lat:15.2993,lng:74.124,status:"visited",cat:"beach",date:"2001-01-01",travel:"bus",visits:1,rating:5,memory:"First beach trip — unforgettable",notes:"",reason:"personal",company:"",chapter:"Education",public:true},
+  {id:"ct3",img1:"photos/asia/gokarna-india/01.jpg",img2:"photos/asia/gokarna-india/02.jpg",name:"Gokarna",country:"India",lat:14.55,lng:74.3167,status:"visited",cat:"beach",date:"2001-02-01",travel:"bus",visits:1,rating:4,memory:"Hidden paradise",notes:"",reason:"personal",company:"",chapter:"Education",public:true},
+  {id:"ct4",img1:"photos/asia/mangalore-india/01.jpg",img2:"photos/asia/mangalore-india/02.jpg",name:"Mangalore",country:"India",lat:12.9141,lng:74.856,status:"visited",cat:"city",date:"2001-03-01",travel:"bus",visits:1,rating:3,memory:"Coastal Karnataka",notes:"",reason:"personal",company:"",chapter:"Education",public:true},
+  {id:"ct5",img1:"photos/asia/coorg-india/01.jpg",img2:"photos/asia/coorg-india/02.jpg",name:"Coorg",country:"India",lat:12.4244,lng:75.7382,status:"visited",cat:"nature",date:"2001-04-01",travel:"bus",visits:1,rating:5,memory:"Coffee plantations and misty hills",notes:"",reason:"personal",company:"",chapter:"Education",public:true},
+  {id:"ct6",img1:"photos/asia/bandipur-india/01.jpg",img2:"photos/asia/bandipur-india/02.jpg",name:"Bandipur",country:"India",lat:11.6689,lng:76.6337,status:"visited",cat:"nature",date:"2001-05-01",travel:"bus",visits:1,rating:4,memory:"Wildlife and nature",notes:"",reason:"personal",company:"",chapter:"Education",public:true},
+  {id:"ct7",img1:"photos/asia/ooty-india/01.jpg",img2:"photos/asia/ooty-india/02.jpg",name:"Ooty",country:"India",lat:11.4102,lng:76.695,status:"visited",cat:"mountain",date:"2001-06-01",travel:"bus",visits:1,rating:4,memory:"Queen of hill stations",notes:"",reason:"personal",company:"",chapter:"Education",public:true},
+  {id:"j1",img1:"photos/asia/bangalore-india/01.jpg",img2:"photos/asia/bangalore-india/02.jpg",name:"Bangalore",country:"India",lat:12.9716,lng:77.5946,status:"lived",cat:"work",date:"2002-09-01",dateTo:"2004-09-01",travel:"bus",visits:1,rating:4,memory:"First job — testing at Velankani Software",notes:"Tough job search post-engineering due to recession. Finally landed first job. Testing role.",reason:"work",company:"Velankani Software Systems",chapter:"First Job",public:true},
+  {id:"j2",img1:"photos/asia/bangalore-india/01.jpg",img2:"photos/asia/bangalore-india/02.jpg",name:"Bangalore",country:"India",lat:12.9716,lng:77.5946,status:"lived",cat:"work",date:"2004-10-01",dateTo:"2014-07-13",travel:"other",visits:1,rating:5,memory:"Wipro — a decade of growth",notes:"Joined Wipro. Bought house in Bangalore. Life-defining decade.",reason:"work",company:"Wipro Ltd",chapter:"Wipro Years",public:true},
+  {id:"o1",img1:"photos/europe/espoo-finland/01.jpg",img2:"photos/europe/espoo-finland/02.jpg",name:"Espoo",country:"Finland",lat:60.2055,lng:24.6559,status:"lived",cat:"work",date:"2004-12-01",dateTo:"2005-02-28",travel:"flight",visits:1,rating:5,memory:"First foreign trip — experienced -19°C and snow everywhere",notes:"First onsite trip from Wipro. Life-changing experience. Cold winter, so much snow. Everything felt new and magical.",reason:"work_onsite",company:"Wipro Ltd",chapter:"Wipro Years",public:true},
+  {id:"o1a",img1:"photos/europe/helsinki-finland/01.jpg",img2:"photos/europe/helsinki-finland/02.jpg",name:"Helsinki",country:"Finland",lat:60.1699,lng:24.9384,status:"visited",cat:"city",date:"2005-01-15",travel:"boat",visits:1,rating:5,memory:"Viking Lines cruise with friends",notes:"Explored the Finnish capital during onsite stay.",reason:"personal",company:"",chapter:"Wipro Years",public:true},
+  {id:"o1b",img1:"photos/europe/stockholm-sweden/01.jpg",img2:"photos/europe/stockholm-sweden/02.jpg",name:"Stockholm",country:"Sweden",lat:59.3293,lng:18.0686,status:"visited",cat:"city",date:"2005-01-15",travel:"boat",visits:1,rating:5,memory:"Viking Lines cruise — first time in Sweden",notes:"Beautiful Scandinavian city. Cruise from Helsinki.",reason:"personal",company:"",chapter:"Wipro Years",public:true},
+  {id:"o2",img1:"photos/asia/suwon-south-korea/01.jpg",img2:"photos/asia/suwon-south-korea/02.jpg",name:"Suwon",country:"South Korea",lat:37.2636,lng:127.0286,status:"lived",cat:"work",date:"2007-01-01",dateTo:"2007-12-01",travel:"flight",visits:1,rating:4,memory:"Samsung client — long term onsite",notes:"Bought a plot back home, began house construction during this time.",reason:"work_onsite",company:"Wipro Ltd / Samsung",chapter:"Wipro Years",public:true},
+  {id:"o2a",img1:"photos/asia/seoul-south-korea/01.jpg",img2:"photos/asia/seoul-south-korea/02.jpg",name:"Seoul",country:"South Korea",lat:37.5665,lng:126.978,status:"visited",cat:"city",date:"2007-03-01",travel:"train",visits:2,rating:4,memory:"Vibrant capital — explored during Samsung onsite",notes:"",reason:"personal",company:"",chapter:"Wipro Years",public:true},
+  {id:"o2b",img1:"photos/asia/pyeongchang-south-korea/01.jpg",img2:"photos/asia/pyeongchang-south-korea/02.jpg",name:"Pyeongchang",country:"South Korea",lat:37.3705,lng:128.3904,status:"visited",cat:"mountain",date:"2007-05-01",travel:"bus",visits:1,rating:4,memory:"Mountain escape during Korea stay",notes:"",reason:"personal",company:"",chapter:"Wipro Years",public:true},
+  {id:"tr1",img1:"photos/asia/singapore/01.jpg",img2:"photos/asia/singapore/02.jpg",name:"Singapore",country:"Singapore",lat:1.3521,lng:103.8198,status:"visited",cat:"city",date:"2007-01-01",travel:"flight",visits:1,rating:3,memory:"Transit layover",notes:"",reason:"transit",company:"",chapter:"Wipro Years",public:true},
+  {id:"tr2",img1:"photos/asia/bangkok-thailand/01.jpg",img2:"photos/asia/bangkok-thailand/02.jpg",name:"Bangkok",country:"Thailand",lat:13.7563,lng:100.5018,status:"visited",cat:"city",date:"2007-01-01",travel:"flight",visits:1,rating:3,memory:"Transit layover",notes:"",reason:"transit",company:"",chapter:"Wipro Years",public:true},
+  {id:"o3",img1:"photos/north-america/pittsburgh-usa/01.jpg",img2:"photos/north-america/pittsburgh-usa/02.jpg",name:"Pittsburgh",country:"USA",lat:40.4406,lng:-79.9959,status:"lived",cat:"work",date:"2008-08-01",dateTo:"2008-12-31",travel:"flight",visits:1,rating:4,memory:"4 months onsite — explored the East Coast",notes:"Lived here Aug-Dec 2008. Explored nearby states. 2008 recession changed everything.",reason:"work_onsite",company:"Wipro Ltd",chapter:"Wipro Years",public:true},
+  {id:"us1",img1:"photos/north-america/niagara-falls-usa/01.jpg",img2:"photos/north-america/niagara-falls-usa/02.jpg",name:"Niagara Falls",country:"USA",lat:43.0962,lng:-79.0377,status:"visited",cat:"nature",date:"2008-09-01",travel:"own-car",visits:3,rating:5,memory:"Breathtaking — visited 3 times, never gets old",notes:"First visit during Pittsburgh onsite 2008, then twice more in 2013.",reason:"personal",chapter:"America",public:true},
+  {id:"us2",img1:"photos/north-america/ohio-usa/01.jpg",img2:"photos/north-america/ohio-usa/02.jpg",name:"Ohio",country:"USA",lat:40.4173,lng:-82.9071,status:"visited",cat:"city",date:"2008-10-01",travel:"own-car",visits:1,rating:3,memory:"Road trip from Pittsburgh",reason:"personal",chapter:"Wipro Years",public:true},
+  {id:"us3",img1:"photos/north-america/maryland-usa/01.jpg",img2:"photos/north-america/maryland-usa/02.jpg",name:"Maryland",country:"USA",lat:39.0458,lng:-76.6413,status:"visited",cat:"city",date:"2008-10-01",travel:"own-car",visits:1,rating:3,memory:"East Coast exploration",reason:"personal",chapter:"Wipro Years",public:true},
+  {id:"us4",img1:"photos/north-america/washington-dc-usa/01.jpg",img2:"photos/north-america/washington-dc-usa/02.jpg",name:"Washington DC",country:"USA",lat:38.9072,lng:-77.0369,status:"visited",cat:"city",date:"2008-11-01",travel:"own-car",visits:1,rating:5,memory:"The capital — monuments, history, power",reason:"personal",chapter:"Wipro Years",public:true},
+  {id:"us5",img1:"photos/north-america/new-york-usa/01.jpg",img2:"photos/north-america/new-york-usa/02.jpg",name:"New York",country:"USA",lat:40.7128,lng:-74.006,status:"visited",cat:"city",date:"2008-11-01",travel:"own-car",visits:2,rating:5,memory:"The city that never sleeps",notes:"First in 2008 from Pittsburgh, again in 2013.",reason:"personal",chapter:"America",public:true},
+  {id:"us6",img1:"photos/north-america/luray-caverns-usa/01.jpg",img2:"photos/north-america/luray-caverns-usa/02.jpg",name:"Luray Caverns",country:"USA",lat:38.6635,lng:-78.4833,status:"visited",cat:"nature",date:"2008-10-01",travel:"own-car",visits:1,rating:4,memory:"Underground wonder — Virginia road trip",reason:"personal",chapter:"Wipro Years",public:true},
+  {id:"us10",img1:"photos/north-america/san-francisco-usa/01.jpg",img2:"photos/north-america/san-francisco-usa/02.jpg",name:"San Francisco",country:"USA",lat:37.7749,lng:-122.4194,status:"visited",cat:"city",date:"2010-03-01",travel:"own-car",visits:25,rating:5,memory:"My second home — 20-25 visits from San Jose",notes:"Golden Gate, Fisherman's Wharf, Chinatown. Almost every other weekend.",reason:"personal",chapter:"America",public:true},
+  {id:"us11",img1:"photos/north-america/yosemite-national-park-usa/01.jpg",img2:"photos/north-america/yosemite-national-park-usa/02.jpg",name:"Yosemite National Park",country:"USA",lat:37.8651,lng:-119.5383,status:"visited",cat:"nature",date:"2011-06-01",travel:"own-car",visits:6,rating:5,memory:"My favourite place on Earth — every single year",notes:"2011-2016. Half Dome, El Capitan, waterfalls. Pure magic every time.",reason:"personal",chapter:"America",public:true},
+  {id:"us12",img1:"photos/north-america/las-vegas-usa/01.jpg",img2:"photos/north-america/las-vegas-usa/02.jpg",name:"Las Vegas",country:"USA",lat:36.1699,lng:-115.1398,status:"visited",cat:"city",date:"2011-01-01",travel:"own-car",visits:4,rating:4,memory:"Sin City — 4 trips, always different",notes:"2011, 2014, 2015. Road trips from San Jose.",reason:"vacation",chapter:"America",public:true},
+  {id:"us13",img1:"photos/north-america/reno-usa/01.jpg",img2:"photos/north-america/reno-usa/02.jpg",name:"Reno",country:"USA",lat:39.5296,lng:-119.8138,status:"visited",cat:"city",date:"2011-01-01",travel:"own-car",visits:3,rating:3,memory:"Gateway to Tahoe",reason:"personal",chapter:"America",public:true},
+  {id:"us14",img1:"photos/north-america/lake-tahoe-usa/01.jpg",img2:"photos/north-america/lake-tahoe-usa/02.jpg",name:"Lake Tahoe",country:"USA",lat:39.0968,lng:-120.0324,status:"visited",cat:"nature",date:"2013-01-01",travel:"own-car",visits:8,rating:5,memory:"My favourite — ALL seasons ❄️🌸☀️🍂",notes:"2013-2015. Snow in winter, crystal blue in summer. One of the most beautiful places.",reason:"personal",chapter:"America",public:true},
+  {id:"us15",img1:"photos/north-america/yellowstone-national-park-usa/01.jpg",img2:"photos/north-america/yellowstone-national-park-usa/02.jpg",name:"Yellowstone National Park",country:"USA",lat:44.428,lng:-110.5885,status:"visited",cat:"nature",date:"2013-07-01",travel:"own-car",visits:1,rating:5,memory:"Old Faithful, hot springs, bison — bucket list ✓",notes:"Epic 2013 road trip. Geysers, wildlife, otherworldly.",reason:"vacation",chapter:"America",public:true},
+  {id:"us16",img1:"photos/north-america/grand-teton-national-park-usa/01.jpg",img2:"photos/north-america/grand-teton-national-park-usa/02.jpg",name:"Grand Teton National Park",country:"USA",lat:43.7904,lng:-110.6818,status:"visited",cat:"mountain",date:"2013-07-01",travel:"own-car",visits:1,rating:5,memory:"Majestic mountains — with Yellowstone trip",reason:"vacation",chapter:"America",public:true},
+  {id:"us17",img1:"photos/north-america/grand-canyon-west-usa/01.jpg",img2:"photos/north-america/grand-canyon-west-usa/02.jpg",name:"Grand Canyon West",country:"USA",lat:36.0122,lng:-113.8106,status:"visited",cat:"nature",date:"2014-03-01",travel:"own-car",visits:1,rating:5,memory:"Skywalk — standing over the abyss",reason:"vacation",chapter:"America",public:true},
+  {id:"us18",img1:"photos/north-america/grand-canyon-south-rim-usa/01.jpg",img2:"photos/north-america/grand-canyon-south-rim-usa/02.jpg",name:"Grand Canyon South Rim",country:"USA",lat:36.0544,lng:-112.1401,status:"visited",cat:"nature",date:"2014-03-01",travel:"own-car",visits:1,rating:5,memory:"Nature's masterpiece — no photo does it justice",reason:"vacation",chapter:"America",public:true},
+  {id:"us19",img1:"photos/north-america/death-valley-usa/01.jpg",img2:"photos/north-america/death-valley-usa/02.jpg",name:"Death Valley",country:"USA",lat:36.5323,lng:-116.9325,status:"visited",cat:"nature",date:"2014-02-01",travel:"own-car",visits:1,rating:4,memory:"Hottest place on Earth — surreal landscape",reason:"personal",chapter:"America",public:true},
+  {id:"us20",img1:"photos/north-america/los-angeles-usa/01.jpg",img2:"photos/north-america/los-angeles-usa/02.jpg",name:"Los Angeles",country:"USA",lat:34.0522,lng:-118.2437,status:"visited",cat:"city",date:"2011-06-01",travel:"own-car",visits:4,rating:4,memory:"Hollywood, beaches, traffic — classic LA",reason:"personal",chapter:"America",public:true},
+  {id:"us21",img1:"photos/north-america/san-diego-usa/01.jpg",img2:"photos/north-america/san-diego-usa/02.jpg",name:"San Diego",country:"USA",lat:32.7157,lng:-117.1611,status:"visited",cat:"beach",date:"2014-05-01",travel:"own-car",visits:1,rating:4,memory:"Perfect weather, beautiful coastline",reason:"vacation",chapter:"America",public:true},
+  {id:"us22",img1:"photos/north-america/baja-california-mexico/01.jpg",img2:"photos/north-america/baja-california-mexico/02.jpg",name:"Baja California",country:"Mexico",lat:30.8406,lng:-115.2838,status:"visited",cat:"beach",date:"2014-08-01",travel:"boat",visits:1,rating:4,memory:"Cruise from LA to Mexico and back 🚢",notes:"First cruise. Pacific Ocean views.",reason:"vacation",chapter:"America",public:true},
+  {id:"us23",img1:"photos/north-america/redwood-national-park-usa/01.jpg",img2:"photos/north-america/redwood-national-park-usa/02.jpg",name:"Redwood National Park",country:"USA",lat:41.2132,lng:-124.0046,status:"visited",cat:"nature",date:"2012-06-01",travel:"own-car",visits:4,rating:5,memory:"Walking among giants — tallest trees on Earth",notes:"Visited many times. The silence and scale is humbling.",reason:"personal",chapter:"America",public:true},
+  {id:"o4",img1:"photos/north-america/san-jose-usa/01.jpg",img2:"photos/north-america/san-jose-usa/02.jpg",name:"San Jose",country:"USA",lat:37.3382,lng:-121.8863,status:"lived",cat:"work",date:"2010-01-01",dateTo:"2016-01-01",travel:"flight",visits:1,rating:5,memory:"H1B visa — Silicon Valley dream",notes:"Moved on H1B. Became full-time US employee in 2014. Bought Honda CRV. Life was good.",reason:"work",company:"Wipro Ltd → Full-time",chapter:"America",public:true},
+  {id:"r1",img1:"photos/asia/bangalore-india/01.jpg",img2:"photos/asia/bangalore-india/02.jpg",name:"Bangalore",country:"India",lat:12.9716,lng:77.5946,status:"lived",cat:"city",date:"2016-01-01",dateTo:"2022-01-01",travel:"flight",visits:1,rating:4,memory:"Return to India — new chapter",notes:"Returned home. Daughter born in 2019 — life's angel.",reason:"personal",company:"",chapter:"Return & Rebuild",public:true},
+  {id:"w1",img1:"photos/europe/aachen-germany/01.jpg",img2:"photos/europe/aachen-germany/02.jpg",name:"Aachen",country:"Germany",lat:50.7753,lng:6.0839,status:"lived",cat:"work",date:"2022-01-01",travel:"flight",visits:1,rating:4,memory:"New horizons — Europe chapter begins",notes:"Moved to Germany for work. NRW. Fresh start. Got Toyota Yaris SUV in Oct 2025.",reason:"work",company:"",chapter:"Europe",public:true},
+  {id:"eu1",img1:"photos/europe/dusseldorf-germany/01.jpg",img2:"photos/europe/dusseldorf-germany/02.jpg",name:"Düsseldorf",country:"Germany",lat:51.2277,lng:6.7735,status:"visited",cat:"city",date:"2022-03-01",travel:"train",visits:10,rating:4,memory:"10+ visits — my go-to German city",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu2",img1:"photos/europe/cologne-germany/01.jpg",img2:"photos/europe/cologne-germany/02.jpg",name:"Cologne",country:"Germany",lat:50.9375,lng:6.9603,status:"visited",cat:"city",date:"2022-04-01",travel:"train",visits:10,rating:4,memory:"The Dom, Rhine river, vibrant city",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu3",img1:"photos/europe/maastricht-netherlands/01.jpg",img2:"photos/europe/maastricht-netherlands/02.jpg",name:"Maastricht",country:"Netherlands",lat:50.8514,lng:5.6909,status:"visited",cat:"city",date:"2022-06-01",travel:"train",visits:4,rating:4,memory:"Charming Dutch border town — 3-4 visits",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu4",img1:"photos/europe/monschau-germany/01.jpg",img2:"photos/europe/monschau-germany/02.jpg",name:"Monschau",country:"Germany",lat:50.5547,lng:6.2426,status:"visited",cat:"city",date:"2022-07-01",travel:"train",visits:4,rating:5,memory:"Fairy tale German village — 3-4 visits",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu5",img1:"photos/europe/liege-belgium/01.jpg",img2:"photos/europe/liege-belgium/02.jpg",name:"Liège",country:"Belgium",lat:50.6326,lng:5.5797,status:"visited",cat:"city",date:"2023-01-01",travel:"train",visits:1,rating:3,memory:"Belgian city near the border",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu6",img1:"photos/europe/bonn-germany/01.jpg",img2:"photos/europe/bonn-germany/02.jpg",name:"Bonn",country:"Germany",lat:50.7374,lng:7.0982,status:"visited",cat:"city",date:"2023-02-01",travel:"train",visits:1,rating:4,memory:"Beethoven's birthplace",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu7",img1:"photos/europe/dortmund-germany/01.jpg",img2:"photos/europe/dortmund-germany/02.jpg",name:"Dortmund",country:"Germany",lat:51.5136,lng:7.4653,status:"visited",cat:"city",date:"2023-03-01",travel:"train",visits:1,rating:3,memory:"Football city",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu8",img1:"photos/europe/wuppertal-germany/01.jpg",img2:"photos/europe/wuppertal-germany/02.jpg",name:"Wuppertal",country:"Germany",lat:51.2562,lng:7.1508,status:"visited",cat:"city",date:"2023-04-01",travel:"train",visits:1,rating:3,memory:"Famous suspension railway",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu9",img1:"photos/europe/paris-france/01.jpg",img2:"photos/europe/paris-france/02.jpg",name:"Paris",country:"France",lat:48.8566,lng:2.3522,status:"visited",cat:"city",date:"2023-06-01",travel:"train",visits:2,rating:5,memory:"City of love — twice, 2023 and 2024",notes:"Eiffel Tower, Louvre, Seine. Magical both times.",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu10",img1:"photos/europe/hamburg-germany/01.jpg",img2:"photos/europe/hamburg-germany/02.jpg",name:"Hamburg",country:"Germany",lat:53.5511,lng:9.9937,status:"visited",cat:"city",date:"2024-05-01",travel:"train",visits:1,rating:4,memory:"Port city — road trip 2024",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu11",img1:"photos/europe/brussels-belgium/01.jpg",img2:"photos/europe/brussels-belgium/02.jpg",name:"Brussels",country:"Belgium",lat:50.8503,lng:4.3517,status:"visited",cat:"city",date:"2025-02-01",travel:"train",visits:1,rating:4,memory:"Grand Place, chocolate, waffles",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu12",img1:"photos/europe/lucerne-switzerland/01.jpg",img2:"photos/europe/lucerne-switzerland/02.jpg",name:"Lucerne",country:"Switzerland",lat:47.0502,lng:8.3093,status:"visited",cat:"city",date:"2024-08-01",travel:"train",visits:1,rating:5,memory:"Swiss perfection — lake and mountains",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu13",img1:"photos/europe/rhine-falls-switzerland/01.jpg",img2:"photos/europe/rhine-falls-switzerland/02.jpg",name:"Rhine Falls",country:"Switzerland",lat:47.6779,lng:8.6155,status:"visited",cat:"nature",date:"2024-08-01",travel:"train",visits:1,rating:5,memory:"Europe's largest waterfall — powerful",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu14",img1:"photos/europe/zurich-switzerland/01.jpg",img2:"photos/europe/zurich-switzerland/02.jpg",name:"Zurich",country:"Switzerland",lat:47.3769,lng:8.5417,status:"visited",cat:"city",date:"2024-08-01",travel:"train",visits:1,rating:4,memory:"Clean, rich, beautiful Swiss city",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu15",img1:"photos/europe/frankfurt-germany/01.jpg",img2:"photos/europe/frankfurt-germany/02.jpg",name:"Frankfurt",country:"Germany",lat:50.1109,lng:8.6821,status:"visited",cat:"city",date:"2025-01-01",travel:"train",visits:1,rating:3,memory:"Financial capital of Germany",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu16",img1:"photos/europe/strasbourg-france/01.jpg",img2:"photos/europe/strasbourg-france/02.jpg",name:"Strasbourg",country:"France",lat:48.5734,lng:7.7521,status:"visited",cat:"city",date:"2025-12-01",travel:"own-car",visits:1,rating:5,memory:"Christmas markets — Franco-German charm",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu17",img1:"photos/europe/geneva-switzerland/01.jpg",img2:"photos/europe/geneva-switzerland/02.jpg",name:"Geneva",country:"Switzerland",lat:46.2044,lng:6.1432,status:"visited",cat:"city",date:"2025-12-01",travel:"own-car",visits:1,rating:5,memory:"Jet d'Eau, UN, Lake Geneva",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu18",img1:"photos/europe/chamonix-france/01.jpg",img2:"photos/europe/chamonix-france/02.jpg",name:"Chamonix",country:"France",lat:45.9237,lng:6.8694,status:"visited",cat:"mountain",date:"2025-12-01",travel:"own-car",visits:1,rating:5,memory:"Gateway to Mont Blanc — breathtaking Alps",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu19",img1:"photos/europe/mont-blanc-france/01.jpg",img2:"photos/europe/mont-blanc-france/02.jpg",name:"Mont Blanc",country:"France",lat:45.8326,lng:6.8652,status:"visited",cat:"mountain",date:"2025-12-01",travel:"own-car",visits:1,rating:5,memory:"HEAVEN ON EARTH 🏔️ Best place ever — the Alps at their finest",notes:"Drove my Yaris SUV through the Alps. Standing at the roof of Europe. Life-defining moment.",reason:"vacation",chapter:"Europe",public:true},
+  {id:"m1",img1:"photos/asia/dubai-uae/01.jpg",img2:"photos/asia/dubai-uae/02.jpg",name:"Dubai",country:"UAE",lat:25.2048,lng:55.2708,status:"visited",cat:"city",date:"2013-01-01",travel:"flight",visits:1,rating:4,memory:"Desert luxury — Burj Khalifa, malls, heat",reason:"vacation",chapter:"America",public:true},
+  {id:"m2",img1:"photos/asia/singapore/01.jpg",img2:"photos/asia/singapore/02.jpg",name:"Singapore",country:"Singapore",lat:1.3521,lng:103.8198,status:"visited",cat:"city",date:"2014-01-01",travel:"flight",visits:1,rating:5,memory:"Clean, green, amazing food — proper visit this time",reason:"vacation",chapter:"America",public:true},
+  {id:"m3",img1:"photos/asia/bangkok-thailand/01.jpg",img2:"photos/asia/bangkok-thailand/02.jpg",name:"Bangkok",country:"Thailand",lat:13.7563,lng:100.5018,status:"visited",cat:"city",date:"2018-01-01",travel:"flight",visits:1,rating:4,memory:"Temples, street food, vibrant nightlife",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"m4",img1:"photos/asia/pattaya-thailand/01.jpg",img2:"photos/asia/pattaya-thailand/02.jpg",name:"Pattaya",country:"Thailand",lat:12.9236,lng:100.8825,status:"visited",cat:"beach",date:"2018-01-01",travel:"bus",visits:1,rating:4,memory:"Beach town escape from Bangkok",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"m5",img1:"photos/asia/new-delhi-india/01.jpg",img2:"photos/asia/new-delhi-india/02.jpg",name:"New Delhi",country:"India",lat:28.6139,lng:77.209,status:"visited",cat:"city",date:"2019-01-01",travel:"flight",visits:1,rating:3,memory:"Capital city — history and chaos",reason:"personal",chapter:"Return & Rebuild",public:true},
+  {id:"m6",img1:"photos/asia/noida-india/01.jpg",img2:"photos/asia/noida-india/02.jpg",name:"Noida",country:"India",lat:28.5355,lng:77.391,status:"visited",cat:"city",date:"2019-01-01",travel:"own-car",visits:1,rating:3,memory:"NCR trip",reason:"work",chapter:"Return & Rebuild",public:true},
+  {id:"m7",img1:"photos/asia/ooty-india/01.jpg",img2:"photos/asia/ooty-india/02.jpg",name:"Ooty",country:"India",lat:11.4102,lng:76.695,status:"visited",cat:"mountain",date:"2023-06-01",travel:"own-car",visits:2,rating:4,memory:"Hill station revisited — Maruti Brezza road trip",notes:"Second visit after college days. This time in my own car — Maruti Brezza automatic.",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"m8",img1:"photos/asia/wayanad-india/01.jpg",img2:"photos/asia/wayanad-india/02.jpg",name:"Wayanad",country:"India",lat:11.6854,lng:76.132,status:"visited",cat:"nature",date:"2024-01-01",travel:"own-car",visits:1,rating:5,memory:"Kerala's green paradise — Brezza road trip 🌿",notes:"Drove my Maruti Brezza through the Western Ghats. Misty mountains, spice plantations, wildlife.",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"m9",img1:"photos/asia/abu-dhabi-uae/01.jpg",img2:"photos/asia/abu-dhabi-uae/02.jpg",name:"Abu Dhabi",country:"UAE",lat:24.4539,lng:54.3773,status:"visited",cat:"city",date:"2016-01-01",travel:"flight",visits:2,rating:4,memory:"Visited twice — 2016 and 2024",reason:"personal",chapter:"Return & Rebuild",public:true},
+  {id:"tr3",img1:"photos/asia/hong-kong/01.jpg",img2:"photos/asia/hong-kong/02.jpg",name:"Hong Kong",country:"Hong Kong",lat:22.3193,lng:114.1694,status:"transit",cat:"city",date:"2010-01-01",travel:"flight",visits:1,rating:3,memory:"Transit — didn't leave the airport",reason:"transit",chapter:"America",public:true},
+  {id:"tr4",img1:"photos/europe/london-heathrow-uk/01.jpg",img2:"photos/europe/london-heathrow-uk/02.jpg",name:"London Heathrow",country:"UK",lat:51.47,lng:-0.4543,status:"transit",cat:"city",date:"2022-01-01",travel:"flight",visits:1,rating:3,memory:"Transit — stayed in airport",reason:"transit",chapter:"Europe",public:true},
+  {id:"h1",img1:"photos/asia/bellary-india/01.jpg",img2:"photos/asia/bellary-india/02.jpg",name:"Bellary",country:"India",lat:15.1394,lng:76.9214,status:"visited",cat:"city",date:"1981-01-01",travel:"bus",visits:100,rating:5,memory:"Father's native — 100+ visits, childhood to now",notes:"Hettina Budhihala — my native god. Been coming here since I was a baby. Deep roots.",reason:"family",chapter:"Origins",public:true},
+  {id:"h2",img1:"photos/asia/chitradurga-india/01.jpg",img2:"photos/asia/chitradurga-india/02.jpg",name:"Kunabeva, Chitradurga",country:"India",lat:14.18,lng:76.35,status:"visited",cat:"city",date:"1981-01-01",travel:"bus",visits:100,rating:5,memory:"Mother's native — 100+ visits, baby to 2006",notes:"Where mom grew up. Spent countless summers here as a child. Pure village life.",reason:"family",chapter:"Origins",public:true},
+  {id:"h3",img1:"photos/asia/dharmasthala-india/01.jpg",img2:"photos/asia/dharmasthala-india/02.jpg",name:"Dharmasthala",country:"India",lat:12.9625,lng:75.3724,status:"visited",cat:"other",date:"1990-01-01",travel:"bus",visits:15,rating:5,memory:"My home god 🙏 — visited many times",notes:"Sri Manjunatha Temple. Spiritual anchor. Always feel at peace here.",reason:"family",chapter:"Origins",public:true},
+  {id:"m10",img1:"photos/asia/udupi-india/01.jpg",img2:"photos/asia/udupi-india/02.jpg",name:"Udupi",country:"India",lat:13.3409,lng:74.7421,status:"visited",cat:"beach",date:"2024-11-01",travel:"own-car",visits:1,rating:5,memory:"Malpe Beach & Blue Lagoon — stunning coastline",notes:"Nov 2024 trip. Crystal clear waters at Blue Lagoon.",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"m11",img1:"photos/asia/murudeshwara-india/01.jpg",img2:"photos/asia/murudeshwara-india/02.jpg",name:"Murudeshwara",country:"India",lat:14.0944,lng:74.4844,status:"visited",cat:"other",date:"2024-11-01",travel:"own-car",visits:1,rating:5,memory:"Giant Shiva statue by the sea 🙏",notes:"Nov 2024. Breathtaking temple on the Arabian Sea coast.",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"in1",img1:"photos/asia/hyderabad-india/01.jpg",img2:"photos/asia/hyderabad-india/02.jpg",name:"Hyderabad",country:"India",lat:17.385,lng:78.4867,status:"visited",cat:"city",date:"1998-01-01",travel:"bus",visits:2,rating:4,memory:"Charminar, biryani — visited in college and early career",reason:"personal",chapter:"Education",public:true},
+  {id:"in2",img1:"photos/asia/srisailam-india/01.jpg",img2:"photos/asia/srisailam-india/02.jpg",name:"Srisailam",country:"India",lat:15.8513,lng:78.8689,status:"visited",cat:"other",date:"1998-01-01",travel:"bus",visits:1,rating:4,memory:"Jyotirlinga temple — spiritual trip 🙏",reason:"personal",chapter:"Education",public:true},
+  {id:"in3",img1:"photos/asia/raichur-india/01.jpg",img2:"photos/asia/raichur-india/02.jpg",name:"Raichur",country:"India",lat:16.2076,lng:77.356,status:"visited",cat:"city",date:"1990-01-01",travel:"bus",visits:20,rating:3,memory:"Many visits over the years — family connections",reason:"family",chapter:"Origins",public:true},
+  {id:"in4",img1:"photos/asia/shirdi-india/01.jpg",img2:"photos/asia/shirdi-india/02.jpg",name:"Shirdi",country:"India",lat:19.7668,lng:74.4771,status:"visited",cat:"other",date:"2012-01-01",travel:"flight",visits:2,rating:5,memory:"Sai Baba temple — twice, 2012 and 2015 🙏",reason:"personal",chapter:"Wipro Years",public:true},
+  {id:"in5",img1:"photos/asia/chennai-india/01.jpg",img2:"photos/asia/chennai-india/02.jpg",name:"Chennai",country:"India",lat:13.0827,lng:80.2707,status:"visited",cat:"city",date:"2005-01-01",travel:"train",visits:2,rating:3,memory:"South Indian metro — visited twice",reason:"personal",chapter:"Wipro Years",public:true},
+  {id:"in6",img1:"photos/asia/kemmannagundi-india/01.jpg",img2:"photos/asia/kemmannagundi-india/02.jpg",name:"Kemmangundi",country:"India",lat:13.5314,lng:75.7282,status:"visited",cat:"nature",date:"1999-01-01",travel:"bus",visits:8,rating:5,memory:"Hidden gem — Kudremukh hills, many visits 1999-2016",notes:"One of my favourite nature escapes. Went back again and again over 17 years.",reason:"personal",chapter:"Education",public:true},
+  {id:"in7",img1:"photos/asia/jog-falls-india/01.jpg",img2:"photos/asia/jog-falls-india/02.jpg",name:"Jog Falls",country:"India",lat:14.2295,lng:74.8127,status:"visited",cat:"nature",date:"2000-01-01",travel:"bus",visits:6,rating:5,memory:"India's highest waterfall — many visits, always powerful",reason:"personal",chapter:"Education",public:true},
+  {id:"in8",img1:"photos/asia/agumbe-india/01.jpg",img2:"photos/asia/agumbe-india/02.jpg",name:"Agumbe",country:"India",lat:13.5027,lng:75.0963,status:"visited",cat:"nature",date:"2005-01-01",travel:"own-car",visits:5,rating:5,memory:"Cherrapunji of the South — drove many times in my car",notes:"Sunset point, rainforest, leeches. Raw nature at its best.",reason:"personal",chapter:"Wipro Years",public:true},
+  {id:"in9",img1:"photos/asia/bandipur-india/01.jpg",img2:"photos/asia/bandipur-india/02.jpg",name:"Bandipur",country:"India",lat:11.6689,lng:76.6337,status:"visited",cat:"nature",date:"2012-01-01",travel:"own-car",visits:3,rating:4,memory:"Wildlife safari — 2012 and 2024 visits",reason:"personal",chapter:"Wipro Years",public:true},
+  {id:"in10",img1:"photos/asia/tirupati-india/01.jpg",img2:"photos/asia/tirupati-india/02.jpg",name:"Tirupati",country:"India",lat:13.6288,lng:79.4192,status:"visited",cat:"other",date:"2005-01-01",travel:"bus",visits:5,rating:5,memory:"Lord Venkateswara — many pilgrimages 🙏",reason:"family",chapter:"Wipro Years",public:true},
+  {id:"in11",img1:"photos/asia/srikalahasti-india/01.jpg",img2:"photos/asia/srikalahasti-india/02.jpg",name:"Srikalahasti",country:"India",lat:13.75,lng:79.6981,status:"visited",cat:"other",date:"2005-01-01",travel:"bus",visits:4,rating:5,memory:"Vayu Linga — visited many times with family 🙏",reason:"family",chapter:"Wipro Years",public:true},
+  {id:"in12",img1:"photos/asia/kanchipuram-india/01.jpg",img2:"photos/asia/kanchipuram-india/02.jpg",name:"Kanchipuram",country:"India",lat:12.8342,lng:79.7036,status:"visited",cat:"other",date:"2006-01-01",travel:"bus",visits:1,rating:4,memory:"City of thousand temples — silk sarees 🙏",reason:"personal",chapter:"Wipro Years",public:true},
+  {id:"in13",img1:"photos/asia/shimoga-india/01.jpg",img2:"photos/asia/shimoga-india/02.jpg",name:"Shimoga",country:"India",lat:13.9299,lng:75.5681,status:"visited",cat:"nature",date:"2019-01-01",travel:"own-car",visits:3,rating:4,memory:"Explored almost all tourist places — Brezza trips",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"in14",img1:"photos/asia/sakleshpur-india/01.jpg",img2:"photos/asia/sakleshpur-india/02.jpg",name:"Sakleshpur",country:"India",lat:12.9416,lng:75.7868,status:"visited",cat:"nature",date:"2019-06-01",travel:"own-car",visits:2,rating:5,memory:"Green Route — Western Ghats drive in Brezza",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"in15",img1:"photos/asia/hassan-india/01.jpg",img2:"photos/asia/hassan-india/02.jpg",name:"Hassan",country:"India",lat:13.0068,lng:76.0996,status:"visited",cat:"city",date:"2019-01-01",travel:"own-car",visits:2,rating:4,memory:"Belur, Halebidu temples — Hoysala architecture",reason:"personal",chapter:"Return & Rebuild",public:true},
+  {id:"in16",img1:"photos/asia/gulbarga-india/01.jpg",img2:"photos/asia/gulbarga-india/02.jpg",name:"Gulbarga",country:"India",lat:17.3297,lng:76.8343,status:"visited",cat:"city",date:"2018-01-01",travel:"own-car",visits:1,rating:3,memory:"North Karnataka exploration",reason:"personal",chapter:"Return & Rebuild",public:true},
+  {id:"in17",img1:"photos/asia/hubli-india/01.jpg",img2:"photos/asia/hubli-india/02.jpg",name:"Hubli",country:"India",lat:15.3647,lng:75.124,status:"visited",cat:"city",date:"2018-01-01",travel:"own-car",visits:2,rating:3,memory:"Gateway to North Karnataka",reason:"personal",chapter:"Return & Rebuild",public:true},
+  {id:"in18",img1:"photos/asia/hampi-india/01.jpg",img2:"photos/asia/hampi-india/02.jpg",name:"Hospet & Hampi",country:"India",lat:15.3496,lng:76.4609,status:"visited",cat:"other",date:"2019-01-01",travel:"own-car",visits:2,rating:5,memory:"Vijayanagara ruins — UNESCO World Heritage 🏛️",notes:"Ancient capital. Boulders, temples, history. Magical at sunset.",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"in19",img1:"photos/asia/bangalore-india/01.jpg",img2:"photos/asia/bangalore-india/02.jpg",name:"Banashankari Temple",country:"India",lat:15.3833,lng:75.8486,status:"visited",cat:"other",date:"2019-01-01",travel:"own-car",visits:2,rating:4,memory:"Ancient Chalukya temple — peaceful 🙏",reason:"family",chapter:"Return & Rebuild",public:true},
+  {id:"in20",img1:"photos/asia/hogenakkal-falls-india/01.jpg",img2:"photos/asia/hogenakkal-falls-india/02.jpg",name:"Hogenakkal Falls",country:"India",lat:12.1159,lng:77.7773,status:"visited",cat:"nature",date:"2020-01-01",travel:"own-car",visits:1,rating:4,memory:"Niagara of India — coracle ride on the Kaveri",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"in21",img1:"photos/asia/mangalore-india/01.jpg",img2:"photos/asia/mangalore-india/02.jpg",name:"Uttara Kannada",country:"India",lat:14.6819,lng:74.5183,status:"visited",cat:"nature",date:"2020-01-01",travel:"own-car",visits:2,rating:5,memory:"Coastal Karnataka — beaches, temples, waterfalls",reason:"vacation",chapter:"Return & Rebuild",public:true},
+  {id:"in22",img1:"photos/asia/tumkur-india/01.jpg",img2:"photos/asia/tumkur-india/02.jpg",name:"Namada Chilume, Tumkur",country:"India",lat:13.5,lng:77.05,status:"visited",cat:"nature",date:"1998-01-01",travel:"cycle",visits:50,rating:5,memory:"My favourite local spot — 100 times on Splendor bike 🏍️",notes:"From Hero Ranger cycle to Luna moped to Splendor — this place saw all my rides. Pure nostalgia.",reason:"personal",chapter:"Origins",public:true},
+  {id:"in23",img1:"photos/asia/chitradurga-india/01.jpg",img2:"photos/asia/chitradurga-india/02.jpg",name:"Devarayanadurga, Tumkur",country:"India",lat:13.3756,lng:77.2028,status:"visited",cat:"nature",date:"1996-01-01",travel:"cycle",visits:100,rating:5,memory:"100 times! Hilltop temple — my soul place 🙏",notes:"Started on cycle, then moped, then Splendor. Sunrise here is magical. Know every rock on this hill.",reason:"personal",chapter:"Origins",public:true},
+  {id:"eu20",img1:"photos/europe/luxembourg/01.jpg",img2:"photos/europe/luxembourg/02.jpg",name:"Luxembourg",country:"Luxembourg",lat:49.6117,lng:6.13,status:"visited",cat:"city",date:"2024-06-01",travel:"own-car",visits:2,rating:4,memory:"Tiny country, big charm — 2024 and 2025",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu21",img1:"photos/europe/amsterdam-netherlands/01.jpg",img2:"photos/europe/amsterdam-netherlands/02.jpg",name:"Amsterdam",country:"Netherlands",lat:52.3676,lng:4.9041,status:"visited",cat:"city",date:"2023-07-01",travel:"train",visits:1,rating:5,memory:"Canals, bikes, Van Gogh — unforgettable",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu22",img1:"photos/europe/antwerp-belgium/01.jpg",img2:"photos/europe/antwerp-belgium/02.jpg",name:"Antwerp",country:"Belgium",lat:51.2194,lng:4.4025,status:"visited",cat:"city",date:"2024-03-01",travel:"train",visits:1,rating:4,memory:"Diamond city, beautiful station",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu23",img1:"photos/europe/ostend-belgium/01.jpg",img2:"photos/europe/ostend-belgium/02.jpg",name:"Ostend",country:"Belgium",lat:51.2254,lng:2.9187,status:"visited",cat:"beach",date:"2024-03-01",travel:"train",visits:1,rating:4,memory:"Belgian coast — North Sea breeze",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu24",img1:"photos/europe/bruges-belgium/01.jpg",img2:"photos/europe/bruges-belgium/02.jpg",name:"Bruges",country:"Belgium",lat:51.2093,lng:3.2247,status:"visited",cat:"city",date:"2024-03-01",travel:"train",visits:1,rating:5,memory:"Medieval fairy tale — canals and chocolate",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu25",img1:"photos/europe/eifel-rursee-germany/01.jpg",img2:"photos/europe/eifel-rursee-germany/02.jpg",name:"Eifel Rursee",country:"Germany",lat:50.6333,lng:6.4167,status:"visited",cat:"nature",date:"2022-06-01",travel:"train",visits:6,rating:5,memory:"My local escape — 4-6 visits, all seasons",notes:"Beautiful lake in the Eifel region. Hiking, kayaking, peace. 2022-2025.",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu26",img1:"photos/europe/oslo-norway/01.jpg",img2:"photos/europe/oslo-norway/02.jpg",name:"Oslo",country:"Norway",lat:59.9139,lng:10.7522,status:"visited",cat:"city",date:"2024-07-01",travel:"own-car",visits:1,rating:5,memory:"Viking land — stunning fjord city",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu34",img1:"photos/europe/gothenburg-sweden/01.jpg",img2:"photos/europe/gothenburg-sweden/02.jpg",name:"Gothenburg",country:"Sweden",lat:57.7089,lng:11.9746,status:"visited",cat:"city",date:"2024-07-01",travel:"own-car",visits:1,rating:4,memory:"Sweden's west coast — charming harbour city",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu27",img1:"photos/europe/malmo-sweden/01.jpg",img2:"photos/europe/malmo-sweden/02.jpg",name:"Øresund Bridge",country:"Denmark",lat:55.5713,lng:12.8489,status:"transit",cat:"other",date:"2024-07-01",travel:"own-car",visits:1,rating:5,memory:"Denmark to Sweden undersea bridge — epic drive!",notes:"Famous bridge-tunnel connecting Denmark and Sweden. Drove across — surreal experience.",reason:"transit",chapter:"Europe",public:true},
+  {id:"eu28",img1:"photos/europe/copenhagen-denmark/01.jpg",img2:"photos/europe/copenhagen-denmark/02.jpg",name:"Denmark",country:"Denmark",lat:55.6761,lng:12.5683,status:"transit",cat:"city",date:"2024-07-01",travel:"own-car",visits:1,rating:4,memory:"Transit on the way to Norway — Øresund crossing",reason:"transit",chapter:"Europe",public:true},
+  {id:"eu29",img1:"photos/europe/malmo-sweden/01.jpg",img2:"photos/europe/malmo-sweden/02.jpg",name:"Malmö",country:"Sweden",lat:55.6059,lng:13.0007,status:"visited",cat:"city",date:"2024-07-01",travel:"own-car",visits:1,rating:3,memory:"Swedish side of the Øresund Bridge",reason:"transit",chapter:"Europe",public:true},
+  {id:"eu30",img1:"photos/europe/hamburg-germany/01.jpg",img2:"photos/europe/hamburg-germany/02.jpg",name:"Puttgarden-Rødby Ferry",country:"Germany",lat:54.4969,lng:11.2281,status:"transit",cat:"other",date:"2024-07-01",travel:"boat",visits:1,rating:4,memory:"Car ferry Denmark → Germany — scenic Baltic crossing",notes:"Cruise from Denmark side back to Hamburg/Germany. Car on the ferry.",reason:"transit",chapter:"Europe",public:true},
+  {id:"eu31",img1:"photos/europe/dinant-belgium/01.jpg",img2:"photos/europe/dinant-belgium/02.jpg",name:"Dinant",country:"Belgium",lat:50.2606,lng:4.9122,status:"visited",cat:"city",date:"2024-06-01",travel:"own-car",visits:1,rating:5,memory:"Citadel on the cliff — birthplace of the saxophone 🎷",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu32",img1:"photos/europe/bruges-belgium/01.jpg",img2:"photos/europe/bruges-belgium/02.jpg",name:"Radhadesh, Durbuy",country:"Belgium",lat:50.3531,lng:5.4566,status:"visited",cat:"other",date:"2025-01-01",travel:"own-car",visits:1,rating:5,memory:"ISKCON temple in the Belgian countryside 🙏",notes:"Jan 2025. Hare Krishna castle. Spiritual peace in Europe. Near Durbuy — smallest city in the world.",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu33",img1:"photos/europe/eupen-belgium/01.jpg",img2:"photos/europe/eupen-belgium/02.jpg",name:"Eupen",country:"Belgium",lat:50.6264,lng:6.0335,status:"visited",cat:"city",date:"2023-01-01",travel:"train",visits:1,rating:3,memory:"German-speaking Belgium — close to Aachen",reason:"personal",chapter:"Europe",public:true},
+  {id:"eu35",img1:"photos/europe/kassel-germany/01.jpg",img2:"photos/europe/kassel-germany/02.jpg",name:"Kassel",country:"Germany",lat:51.3127,lng:9.4797,status:"visited",cat:"city",date:"2026-04-02",travel:"own-car",visits:1,rating:4,memory:"Hercules monument — 2050km Yaris road trip",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu36",img1:"photos/europe/saxon-switzerland-germany/01.jpg",img2:"photos/europe/saxon-switzerland-germany/02.jpg",name:"Saxon Switzerland",country:"Germany",lat:50.9122,lng:14.0797,status:"visited",cat:"mountain",date:"2026-04-03",travel:"own-car",visits:1,rating:5,memory:"Bastei Bridge — jaw-dropping rock formations",notes:"Part of the epic 2050km Yaris road trip. Surreal landscape.",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu37",img1:"photos/europe/dresden-germany/01.jpg",img2:"photos/europe/dresden-germany/02.jpg",name:"Dresden",country:"Germany",lat:51.0504,lng:13.7373,status:"visited",cat:"city",date:"2026-04-04",travel:"own-car",visits:1,rating:5,memory:"Florence of the Elbe — baroque beauty",reason:"vacation",chapter:"Europe",public:true},
+  {id:"eu38",img1:"photos/europe/prague-czech-republic/01.jpg",img2:"photos/europe/prague-czech-republic/02.jpg",name:"Prague",country:"Czech Republic",lat:50.0755,lng:14.4378,status:"visited",cat:"city",date:"2026-04-05",travel:"own-car",visits:1,rating:5,memory:"City of a hundred spires — magical 🏰",notes:"2050km Yaris road trip. Charles Bridge, Old Town Square, beer. Unforgettable.",reason:"vacation",chapter:"Europe",public:true},
+  {id:"w2",img1:"photos/north-america/alaska-usa/01.jpg",img2:"photos/north-america/alaska-usa/02.jpg",name:"Alaska",country:"USA",lat:64.2008,lng:-152.4937,status:"wishlist",cat:"nature",date:"",travel:"flight",visits:0,rating:5,memory:"Glaciers, bears, northern wilderness 🐻",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w3",img1:"photos/europe/hallstatt-austria/01.jpg",img2:"photos/europe/hallstatt-austria/02.jpg",name:"Hallstatt",country:"Austria",lat:47.5622,lng:13.6493,status:"wishlist",cat:"nature",date:"",travel:"own-car",visits:0,rating:5,memory:"Fairy tale lakeside village — bucket list 💎",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w4",img1:"photos/europe/salzburg-austria/01.jpg",img2:"photos/europe/salzburg-austria/02.jpg",name:"Salzburg",country:"Austria",lat:47.8095,lng:13.055,status:"wishlist",cat:"city",date:"",travel:"own-car",visits:0,rating:5,memory:"Mozart's city — Sound of Music vibes 🎵",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w5",img1:"photos/europe/bern-switzerland/01.jpg",img2:"photos/europe/bern-switzerland/02.jpg",name:"Bern",country:"Switzerland",lat:46.948,lng:7.4474,status:"wishlist",cat:"city",date:"",travel:"own-car",visits:0,rating:4,memory:"Swiss capital — bears and old town",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w6",img1:"photos/europe/interlaken-switzerland/01.jpg",img2:"photos/europe/interlaken-switzerland/02.jpg",name:"Interlaken",country:"Switzerland",lat:46.6863,lng:7.8632,status:"wishlist",cat:"mountain",date:"",travel:"own-car",visits:0,rating:5,memory:"Between two lakes — gateway to Jungfrau ⛰️",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w7",img1:"photos/europe/santorini-greece/01.jpg",img2:"photos/europe/santorini-greece/02.jpg",name:"Santorini",country:"Greece",lat:36.3932,lng:25.4615,status:"wishlist",cat:"beach",date:"",travel:"flight",visits:0,rating:5,memory:"Blue domes, sunsets, Aegean Sea 🇬🇷",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w8",img1:"photos/europe/barcelona-spain/01.jpg",img2:"photos/europe/barcelona-spain/02.jpg",name:"Barcelona",country:"Spain",lat:41.3874,lng:2.1686,status:"wishlist",cat:"city",date:"",travel:"flight",visits:0,rating:5,memory:"Gaudí, tapas, Mediterranean vibes 🇪🇸",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w9",img1:"photos/europe/tromso-norway/01.jpg",img2:"photos/europe/tromso-norway/02.jpg",name:"Tromsø",country:"Norway",lat:69.6492,lng:18.9553,status:"wishlist",cat:"nature",date:"",travel:"flight",visits:0,rating:5,memory:"Northern Lights — the ultimate dream ✨🌌",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w10",img1:"photos/africa/pyramids-of-giza-egypt/01.jpg",img2:"photos/africa/pyramids-of-giza-egypt/02.jpg",name:"Giza Pyramids",country:"Egypt",lat:29.9792,lng:31.1342,status:"wishlist",cat:"other",date:"",travel:"flight",visits:0,rating:5,memory:"Ancient wonder — 4500 years of history 🏛️",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w11",img1:"photos/africa/serengeti-tanzania/01.jpg",img2:"photos/africa/serengeti-tanzania/02.jpg",name:"Serengeti",country:"Tanzania",lat:-2.3333,lng:34.8333,status:"wishlist",cat:"nature",date:"",travel:"flight",visits:0,rating:5,memory:"African safari — the Big Five 🦁",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w12",img1:"photos/asia/bali-indonesia/01.jpg",img2:"photos/asia/bali-indonesia/02.jpg",name:"Bali",country:"Indonesia",lat:-8.3405,lng:115.092,status:"wishlist",cat:"beach",date:"",travel:"flight",visits:0,rating:5,memory:"Island of gods — temples, rice terraces, surf 🌺",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w13",img1:"photos/asia/kuala-lumpur-malaysia/01.jpg",img2:"photos/asia/kuala-lumpur-malaysia/02.jpg",name:"Kuala Lumpur",country:"Malaysia",lat:3.139,lng:101.6869,status:"wishlist",cat:"city",date:"",travel:"flight",visits:0,rating:4,memory:"Petronas Towers, food paradise 🇲🇾",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w14",img1:"photos/global/maldives/01.jpg",img2:"photos/global/maldives/02.jpg",name:"Maldives",country:"Maldives",lat:3.2028,lng:73.2207,status:"wishlist",cat:"beach",date:"",travel:"flight",visits:0,rating:5,memory:"Dream destination #1 — crystal water, overwater villas 🏝️💙",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w15",img1:"photos/europe/copenhagen-denmark/01.jpg",img2:"photos/europe/copenhagen-denmark/02.jpg",name:"Copenhagen",country:"Denmark",lat:55.6761,lng:12.5683,status:"wishlist",cat:"city",date:"",travel:"own-car",visits:0,rating:4,memory:"Nyhavn, Little Mermaid, hygge 🇩🇰",reason:"vacation",chapter:"Dreams",public:true},
+  {id:"w16",img1:"photos/europe/berlin-germany/01.jpg",img2:"photos/europe/berlin-germany/02.jpg",name:"Berlin",country:"Germany",lat:52.52,lng:13.405,status:"wishlist",cat:"city",date:"",travel:"own-car",visits:0,rating:4,memory:"History, art, nightlife — must visit 🇩🇪",reason:"personal",chapter:"Dreams",public:true},
+  {id:"w17",img1:"photos/europe/black-forest-germany/01.jpg",img2:"photos/europe/black-forest-germany/02.jpg",name:"Black Forest",country:"Germany",lat:48.2082,lng:8.0761,status:"wishlist",cat:"nature",date:"",travel:"own-car",visits:0,rating:5,memory:"Fairy tale forest — cuckoo clocks, hiking, cake 🌲",reason:"vacation",chapter:"Dreams",public:true}
+];
+
+</script>
+<script>
+/* JP's Travel World — Premium Edition */
+const K='myTravelPlaces';
+let P=JSON.parse(localStorage.getItem(K)||'[]');
+if(typeof SEED_DATA!=='undefined'&&P.length<SEED_DATA.length){P=[...SEED_DATA];localStorage.setItem(K,JSON.stringify(P))}
+let M={},editId=null,pending=null,pathLine=null;
+const save=()=>localStorage.setItem(K,JSON.stringify(P));
+
+const stE={visited:'✅',lived:'🏠',birthplace:'🎒',transit:'🚏',wishlist:'🔮'};
+const flags={India:'🇮🇳',USA:'🇺🇸',Finland:'🇫🇮',Sweden:'🇸🇪','South Korea':'🇰🇷',Singapore:'🇸🇬',Thailand:'🇹🇭',UAE:'🇦🇪','Hong Kong':'🇭🇰',UK:'🇬🇧',Mexico:'🇲🇽',Germany:'🇩🇪',France:'🇫🇷',Switzerland:'🇨🇭',Belgium:'🇧🇪',Netherlands:'🇳🇱',Luxembourg:'🇱🇺',Norway:'🇳🇴',Denmark:'🇩🇰','Czech Republic':'🇨🇿',Austria:'🇦🇹',Greece:'🇬🇷',Spain:'🇪🇸',Egypt:'🇪🇬',Tanzania:'🇹🇿',Indonesia:'🇮🇩',Malaysia:'🇲🇾',Maldives:'🇲🇻'};
+const flag=c=>flags[c]||'🌍';
+const trE={flight:'✈️','own-car':'🚗',rental:'🚙',train:'🚆',bus:'🚌',cycle:'🚲',walk:'🚶',boat:'⛴️'};
+const catE={city:'🏙️',nature:'🌿',beach:'🏖️',mountain:'⛰️',food:'🍽️',work:'💼',other:'📍'};
+const bCls={visited:'b-v',lived:'b-l',birthplace:'b-b',transit:'b-t',wishlist:'b-w'};
+
+// === THEME ===
+const themeBtn=document.getElementById('themeBtn');
+themeBtn.onclick=()=>{document.body.classList.toggle('light');themeBtn.textContent=document.body.classList.contains('light')?'🌙':'☀️'};
+
+// === NAV ===
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>{x.classList.remove('on');x.style.background='';x.style.color='';x.style.boxShadow=''});
+  document.querySelectorAll('.v').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  const c=t.dataset.c||'var(--accent)';
+  t.style.background=c;t.style.color='#000';t.style.boxShadow=`0 4px 16px ${c}40`;
+  document.getElementById(t.dataset.v).classList.add('on');
+  if(t.dataset.v==='vJourney')renderJourney();
+  if(t.dataset.v==='vList')renderList();
+  if(t.dataset.v==='vMap'&&map)map.invalidateSize();
+});
+// Init first tab color
+document.querySelector('.tab.on').style.background='#2EC4B6';document.querySelector('.tab.on').style.color='#000';document.querySelector('.tab.on').style.boxShadow='0 4px 16px rgba(46,196,182,0.3)';
+
+// === MAP ===
+let map;
+try{
+  map=L.map('map',{zoomControl:false}).setView([25,10],3);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+  L.control.zoom({position:'bottomright'}).addTo(map);
+}catch(e){console.warn('Map failed:',e)}
+
+function mkIcon(st){
+  const cls={visited:'marker-visited',lived:'marker-lived',birthplace:'marker-birth',transit:'marker-transit',wishlist:'marker-wish'}[st]||'marker-visited';
+  const sz=st==='lived'||st==='birthplace'?18:12;
+  return L.divIcon({className:'',html:`<div class="marker-pulse ${cls}" style="width:${sz}px;height:${sz}px"></div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+}
+
+function render(){
+  if(!map)return;
+  Object.values(M).forEach(m=>map.removeLayer(m));M={};
+  if(pathLine)map.removeLayer(pathLine);
+  P.forEach(p=>{
+    const m=L.marker([p.lat,p.lng],{icon:mkIcon(p.status)}).addTo(map);
+    m.on('click',()=>showPM(p.id));M[p.id]=m;
+  });
+  const vis=[...P].filter(p=>p.date&&p.status!=='wishlist').sort((a,b)=>a.date.localeCompare(b.date));
+  if(vis.length>1)pathLine=L.polyline(vis.map(p=>[p.lat,p.lng]),{color:'var(--accent)',weight:1.5,opacity:.2,dashArray:'6,12'}).addTo(map);
+  save();
+}
+
+// === PLACE DETAIL MODAL ===
+let pmId=null;
+function showPM(id){
+  const p=P.find(x=>x.id===id);if(!p)return;pmId=id;
+  const img=document.getElementById('pmImg');
+  const imgSrc=p.photo||''; // img1 disabledimg.style.display=imgSrc?'block':'none';if(imgSrc)img.src=imgSrc;
+  document.getElementById('pmName').textContent=p.name;
+  document.getElementById('pmSub').textContent=`${flag(p.country)} ${p.country||''} · ${p.date?p.date.slice(0,4):''}${p.dateTo?' → '+p.dateTo.slice(0,4):''}`;
+  document.getElementById('pmBadges').innerHTML=[stE[p.status],trE[p.travel],p.visits>1?p.visits+'x':'',p.company?'🏢 '+p.company:'',p.chapter?'📖 '+p.chapter:''].filter(Boolean).map(s=>`<span>${s}</span>`).join('');
+  document.getElementById('pmStars').textContent='⭐'.repeat(p.rating||3);
+  const mem=document.getElementById('pmMem');
+  mem.style.display=p.memory?'block':'none';mem.textContent=p.memory?'✨ '+p.memory:'';
+  document.getElementById('pmNotes').textContent=p.notes||'';
+  document.getElementById('pmOv').classList.add('on');
+}
+document.getElementById('pmEdit').onclick=()=>{document.getElementById('pmOv').classList.remove('on');if(pmId)openEdit(pmId)};
+document.getElementById('pmStory').onclick=()=>{document.getElementById('pmOv').classList.remove('on');if(pmId)openStory(P.findIndex(x=>x.id===pmId))};
+
+// === STORY MODE ===
+let storyIdx=0,storyTimer=null;
+function openStory(startIdx){
+  const sorted=[...P].filter(p=>p.status!=='wishlist'&&p.date).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!sorted.length)return;
+  const el=document.getElementById('storySlides');
+  const nav=document.getElementById('storyNav');
+  el.innerHTML=sorted.map((p,i)=>`<div class="story-slide ${i===0?'active':''}" data-i="${i}"><div class="bg" style="${p.photo?'background-image:url('+p.photo+')':'background:linear-gradient(135deg,#1a1a3e,#06061a)'}"></div><div class="content"><div class="s-name">${p.name}</div><div class="s-meta">${stE[p.status]||''} ${flag(p.country)} ${p.country||''} · ${p.date?p.date.slice(0,4):''} · ${trE[p.travel]||''}</div>${p.memory?'<div class="s-memory">✨ '+p.memory+'</div>':''}<div class="s-rating">${'⭐'.repeat(p.rating||3)}</div></div></div>`).join('');
+  nav.innerHTML=sorted.map((_,i)=>`<div class="story-dot ${i===0?'on':''}" data-i="${i}"></div>`).join('');
+  nav.querySelectorAll('.story-dot').forEach(d=>d.onclick=()=>goSlide(+d.dataset.i));
+  storyIdx=Math.max(0,Math.min(startIdx||0,sorted.length-1));
+  goSlide(storyIdx);
+  document.getElementById('storyMode').classList.add('on');
+  // Auto-advance
+  clearInterval(storyTimer);
+  storyTimer=setInterval(()=>goSlide((storyIdx+1)%sorted.length),5000);
+}
+function goSlide(i){
+  storyIdx=i;
+  document.querySelectorAll('.story-slide').forEach((s,j)=>s.classList.toggle('active',j===i));
+  document.querySelectorAll('.story-dot').forEach((d,j)=>d.classList.toggle('on',j===i));
+  const total=document.querySelectorAll('.story-slide').length;
+  document.getElementById('storyProg').style.width=((i+1)/total*100)+'%';
+}
+document.getElementById('storyClose').onclick=()=>{document.getElementById('storyMode').classList.remove('on');clearInterval(storyTimer)};
+// Swipe support
+let touchX=0;
+document.getElementById('storyMode').addEventListener('touchstart',e=>touchX=e.touches[0].clientX);
+document.getElementById('storyMode').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-touchX;
+  const total=document.querySelectorAll('.story-slide').length;
+  if(dx<-50)goSlide(Math.min(storyIdx+1,total-1));
+  if(dx>50)goSlide(Math.max(storyIdx-1,0));
+});
+
+// === PLAY JOURNEY ===
+document.getElementById('btnPlay').onclick=async()=>{
+  const sorted=[...P].filter(p=>p.date&&p.status!=='wishlist').sort((a,b)=>a.date.localeCompare(b.date));
+  if(!sorted.length)return;
+  const jo=document.getElementById('jo');jo.style.display='block';
+  for(const p of sorted){
+    document.getElementById('joN').textContent=flag(p.country)+' '+p.name+', '+(p.country||'');
+    document.getElementById('joM').textContent=(p.date?p.date.slice(0,4):'')+' · '+(p.memory||stE[p.status]||'');
+    map.flyTo([p.lat,p.lng],8,{duration:1.5});
+    await new Promise(r=>setTimeout(r,2500));
+  }
+  jo.style.display='none';map.flyTo([25,10],3,{duration:1});
+};
+
+// === STORY MODE BUTTON ===
+document.getElementById('btnStory').onclick=()=>openStory(0);
+
+// === RANDOM ===
+document.getElementById('btnRand').onclick=()=>{
+  const v=P.filter(p=>p.status!=='wishlist');if(!v.length)return;
+  const p=v[Math.floor(Math.random()*v.length)];
+  map.flyTo([p.lat,p.lng],10,{duration:1});
+  setTimeout(()=>showPM(p.id),1200);
+};
+
+// === GEOCODING ===
+let gT=null;const iNm=document.getElementById('iNm'),gR=document.getElementById('gR');
+iNm.oninput=()=>{clearTimeout(gT);const q=iNm.value.trim();if(q.length<2){gR.innerHTML='';return}
+  gT=setTimeout(()=>fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&addressdetails=1`).then(r=>r.json()).then(res=>{
+    gR.innerHTML=res.map(r=>`<div class="geo-r" data-lat="${r.lat}" data-lng="${r.lon}" data-n="${r.display_name.split(',')[0]}" data-c="${r.address?.country||''}">${r.display_name}</div>`).join('');
+    gR.querySelectorAll('.geo-r').forEach(el=>el.onclick=()=>{iNm.value=el.dataset.n;document.getElementById('iCo').value=el.dataset.c;pending={lat:+el.dataset.lat,lng:+el.dataset.lng};gR.innerHTML=''});
+  }).catch(()=>{}),400)};
+
+// === ADD/EDIT MODAL ===
+if(map)map.on('click',e=>openModal(e.latlng.lat,e.latlng.lng));
+document.getElementById('btnAdd').onclick=()=>openModal(map.getCenter().lat,map.getCenter().lng);
+document.getElementById('iSt').onchange=()=>{document.getElementById('dtToW').style.display=document.getElementById('iSt').value==='lived'?'':'none'};
+
+function openModal(lat,lng,p){
+  editId=p?p.id:null;pending=p?null:{lat,lng};
+  document.getElementById('mTitle').textContent=p?'Edit Memory':'Add Memory';
+  document.getElementById('iSt').value=p?(p.status||'visited'):'visited';
+  document.getElementById('dtToW').style.display=p?.status==='lived'?'':'none';
+  iNm.value=p?p.name:'';
+  document.getElementById('iCo').value=p?p.country:'';
+  document.getElementById('iDt').value=p?p.date:new Date().toISOString().slice(0,10);
+  document.getElementById('iDtTo').value=p?.dateTo||'';
+  document.getElementById('iCat').value=p?p.cat:'city';
+  document.getElementById('iTr').value=p?(p.travel||'flight'):'flight';
+  document.getElementById('iVis').value=p?(p.visits||1):1;
+  document.getElementById('iRat').value=p?(p.rating||3):5;
+  document.getElementById('iRsn').value=p?(p.reason||'personal'):'personal';
+  document.getElementById('iPub').value=p?(p.public!==false?'true':'false'):'true';
+  document.getElementById('iMem').value=p?.memory||'';
+  document.getElementById('iComp').value=p?.company||'';
+  document.getElementById('iNo').value=p?.notes||'';
+  document.getElementById('iPh').value='';
+  document.getElementById('phPrev').innerHTML=p?.photo?`<img src="${p.photo}" style="width:100%;max-height:60px;object-fit:cover;border-radius:8px">`:'';
+  document.getElementById('btnD').style.display=p?'block':'none';
+  gR.innerHTML='';document.getElementById('ov').classList.add('on');
+}
+function closeModal(){document.getElementById('ov').classList.remove('on');gR.innerHTML='';editId=null;pending=null}
+function openEdit(id){const p=P.find(x=>x.id===id);if(p)openModal(p.lat,p.lng,p)}
+document.getElementById('btnX').onclick=closeModal;
+document.getElementById('btnD').onclick=()=>{if(editId&&confirm('Remove?')){P=P.filter(p=>p.id!==editId);render();closeModal()}};
+document.getElementById('btnS').onclick=()=>{
+  const name=iNm.value.trim();if(!name)return alert('Enter a place name');
+  const d={name,country:document.getElementById('iCo').value.trim(),date:document.getElementById('iDt').value,dateTo:document.getElementById('iDtTo').value||'',cat:document.getElementById('iCat').value,status:document.getElementById('iSt').value,travel:document.getElementById('iTr').value,visits:+document.getElementById('iVis').value||1,rating:+document.getElementById('iRat').value,reason:document.getElementById('iRsn').value,public:document.getElementById('iPub').value==='true',memory:document.getElementById('iMem').value.trim(),company:document.getElementById('iComp').value.trim(),notes:document.getElementById('iNo').value.trim()};
+  function done(ph){
+    if(ph)d.photo=ph;else if(editId){const o=P.find(x=>x.id===editId);if(o?.photo)d.photo=o.photo}
+    if(editId)Object.assign(P.find(x=>x.id===editId),d);
+    else{const c=pending||map.getCenter();P.push({id:Date.now().toString(),lat:c.lat,lng:c.lng,...d})}
+    render();closeModal();
+  }
+  const f=document.getElementById('iPh').files[0];
+  if(f){const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),s=Math.min(400/img.width,400/img.height,1);c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);done(c.toDataURL('image/jpeg',.7))};img.src=e.target.result};r.readAsDataURL(f)}
+  else done(null);
+};
+
+// === JOURNEY ===
+function animN(el,n){let c=0;const s=Math.max(1,Math.ceil(n/25));const t=setInterval(()=>{c+=s;if(c>=n){c=n;clearInterval(t)}el.textContent=c},30)}
+
+function renderJourney(){
+  const v=P.filter(p=>p.status!=='wishlist'),w=P.filter(p=>p.status==='wishlist');
+  const countries=[...new Set(v.map(p=>p.country).filter(Boolean))];
+  const totalVis=v.reduce((s,p)=>s+(p.visits||1),0);
+  // On this day
+  const today=new Date().toISOString().slice(5,10);
+  const otdP=v.filter(p=>p.date&&p.date.slice(5,10)===today);
+  document.getElementById('otd').innerHTML=otdP.length?`<div class="otd"><div class="otd-title">📅 On This Day</div><div class="otd-place">${otdP[0].name}, ${otdP[0].country||''}</div><div class="otd-mem">${otdP[0].memory||otdP[0].date}</div></div>`:'';
+  // Cards
+  document.getElementById('iCards').innerHTML=`<div class="card"><div class="n" data-n="${v.length}">0</div><div class="l">Places</div></div><div class="card"><div class="n" data-n="${countries.length}">0</div><div class="l">Countries</div></div><div class="card"><div class="n" data-n="${totalVis}">0</div><div class="l">Visits</div></div><div class="card"><div class="n" data-n="${w.length}">0</div><div class="l">Dreams</div></div>`;
+  document.querySelectorAll('.card .n').forEach(el=>animN(el,+el.dataset.n));
+  // Chapters
+  const ch={};P.filter(p=>p.chapter).forEach(p=>{(ch[p.chapter]=ch[p.chapter]||[]).push(p)});
+  const chOrd=[...new Set(P.filter(p=>p.chapter&&p.date).sort((a,b)=>a.date.localeCompare(b.date)).map(p=>p.chapter))];
+  document.getElementById('iChap').innerHTML=chOrd.map(c=>{const items=ch[c];const f=items[0];const dr=f.date?(f.date.slice(0,4)+(f.dateTo?' → '+f.dateTo.slice(0,4):'')):'';const co=items.find(p=>p.company)?.company||'';return`<div class="chapter"><h4>${stE[f.status]||'📍'} ${c} ${dr?'('+dr+')':''}</h4><p>${co?'🏢 '+co+' · ':''}${items.map(p=>p.name).join(', ')}${f.memory?' · ✨ '+f.memory:''}</p></div>`}).join('')||'<div style="color:var(--text2);font-size:13px;padding:8px">Add chapters to see your life story</div>';
+  // Countries
+  const cc={};v.forEach(p=>{if(p.country)cc[p.country]=(cc[p.country]||0)+1});
+  document.getElementById('iCountries').innerHTML=Object.entries(cc).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<div class="citem"><span>${flags[c]||'🌍'} ${c}</span><span style="color:var(--text2)">${n}</span></div>`).join('');
+  // Travel
+  const tr={};v.forEach(p=>{const t=p.travel||'other';tr[t]=(tr[t]||0)+1});
+  const mt=Math.max(...Object.values(tr),1);
+  const trC={flight:'#48dbfb','own-car':'#ff6b6b',rental:'#feca57',train:'#2ecc71',bus:'#f39c12',cycle:'#a29bfe',walk:'#fd79a8',boat:'#00cec9'};
+  renderDreamMeter();
+  document.getElementById('iTravel').innerHTML=Object.entries(tr).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`<div class="bar-r"><div class="bar-l">${trE[t]||''} ${t}</div><div class="bar-t"><div class="bar-f" style="width:${n/mt*100}%;background:${trC[t]||'#666'}">${n}</div></div></div>`).join('');
+  // Timeline
+  const dated=[...v].filter(p=>p.date).sort((a,b)=>b.date.localeCompare(a.date));
+  const years={};dated.forEach(p=>{const y=p.date.slice(0,4);(years[y]=years[y]||[]).push(p)});
+  let tl='';Object.keys(years).sort((a,b)=>b-a).forEach(y=>{tl+=`<div class="tl-year">${y}</div>`;years[y].forEach(p=>{tl+=`<div class="tl-item"><div class="tl-dot"></div><div><div class="tl-name">${p.name}</div><div class="tl-meta">${p.date.slice(5)} · ${flag(p.country)} ${p.country||''} ${p.memory?'· ✨ '+p.memory:''}</div></div></div>`})});
+  document.getElementById('iTL').innerHTML=tl||'<div style="color:var(--text2);font-size:13px;padding:8px">Add dates to build your timeline</div>';
+}
+
+// === LIST ===
+let filt='all';
+function renderList(){
+  const fs=['all','visited','lived','birthplace','transit','wishlist'];
+  document.getElementById('fltrs').innerHTML=fs.map(f=>`<button class="fbtn ${filt===f?'on':''}" data-f="${f}">${f==='all'?'All':(stE[f]||'')+' '+f}</button>`).join('');
+  document.querySelectorAll('.fbtn').forEach(b=>b.onclick=()=>{filt=b.dataset.f;renderList()});
+  let list=filt==='all'?P:P.filter(p=>(p.status||'visited')===filt);
+  list=[...list].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const el=document.getElementById('pCards');
+  if(!list.length){el.innerHTML='<div class="empty"><span style="font-size:40px;display:block;margin-bottom:10px">🌍</span>No places yet.<br>Tap the map to start!</div>';return}
+  el.innerHTML=list.map(p=>`<div class="pc" data-id="${p.id}"><div class="pc-top"><div><div class="pc-name">${stE[p.status]||'📍'} ${p.name}</div><div class="pc-sub">${flag(p.country)} ${p.country||''} ${p.date?'· '+p.date.slice(0,4):''}</div></div><span class="pc-badge" style="background:var(--glass)">${catE[p.cat]||'📍'} ${trE[p.travel]||''} ${p.visits>1?p.visits+'x':''}</span></div>${p.memory?`<div class="pc-note">✨ ${p.memory}</div>`:''}${p.company?`<div class="pc-note">🏢 ${p.company}</div>`:''}
+  <div class="pc-acts"><button onclick="event.stopPropagation();openEdit('${p.id}')" style="background:var(--card);color:var(--text)">✏️</button><button onclick="event.stopPropagation();if(confirm('Remove ${p.name}?')){P=P.filter(x=>x.id!=='${p.id}');render();renderList()}" style="background:rgba(255,50,50,.1);color:#f44">🗑️</button><button onclick="event.stopPropagation();openStory(${P.findIndex(x=>x.id===p.id)})" style="background:var(--accent4);color:#fff">📖</button></div></div>`).join('');
+  el.querySelectorAll('.pc').forEach(c=>c.onclick=()=>{const p=P.find(x=>x.id===c.dataset.id);if(!p)return;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.v').forEach(x=>x.classList.remove('on'));document.querySelector('[data-v="vMap"]').classList.add('on');document.getElementById('vMap').classList.add('on');setTimeout(()=>{map.invalidateSize();map.flyTo([p.lat,p.lng],12,{duration:1});setTimeout(()=>showPM(p.id),1e3)},100)});
+}
+
+// === EXPORT/IMPORT ===
+document.getElementById('btnExp').onclick=()=>{const b=new Blob([JSON.stringify(P,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='jp-travel-'+new Date().toISOString().slice(0,10)+'.json';a.click()};
+document.getElementById('btnImp').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))return alert('Invalid');const ids=new Set(P.map(p=>p.id));let n=0;imp.forEach(p=>{if(!ids.has(p.id)){P.push(p);n++}});render();alert(`✅ ${n} new place(s)`)}catch(e){alert('Error')}};r.readAsText(f)};
+
+
+// === ROTATING QUOTES ===
+const quotes=[
+  '"Home is every place I have a story." ♐',
+  '"The journey is the destination." 🌍',
+  '"Not all who wander are lost — some are Sagittarians." ♐',
+  '"From Devarayanadurga on a Hero Ranger to Mont Blanc in a Yaris." 🏔️',
+  '"20 countries, 7 chapters, one incredible life." ✨',
+  '"Travel is not a hobby — it\'s part of who I am." 🧭',
+  '"Every setback became a comeback." 🔥',
+  '"With less fear and more trust in self." 💛'
+];
+let qi=0;
+function rotateQuote(){
+  const el=document.getElementById('quoteStrip');
+  if(!el)return;
+  el.style.opacity=0;
+  setTimeout(()=>{el.textContent=quotes[qi];el.style.opacity=1;qi=(qi+1)%quotes.length},500);
+}
+rotateQuote();setInterval(rotateQuote,5000);
+
+// === SCROLL PROGRESS ===
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement.scrollHeight-window.innerHeight;
+  const p=h>0?(window.scrollY/h*100):0;
+  document.getElementById('scrollProg').style.width=p+'%';
+});
+
+// === MILESTONE CHIPS ===
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+  const y=c.dataset.y;
+  const el=document.querySelector('.tl-year');
+  // Find matching year in timeline
+  document.querySelectorAll('.tl-year').forEach(t=>{
+    if(t.textContent.trim()===y){t.scrollIntoView({behavior:'smooth',block:'center'});t.style.background='var(--glow-gold)';setTimeout(()=>t.style.background='',2000)}
+  });
+});
+
+// === DREAM METER ===
+function renderDreamMeter(){
+  const v=P.filter(p=>p.status!=='wishlist').length;
+  const w=P.filter(p=>p.status==='wishlist').length;
+  const total=v+w;
+  const pct=total>0?(v/total*100):0;
+  const el=document.getElementById('dreamMeter');
+  if(!el)return;
+  el.innerHTML=`<div style="display:flex;justify-content:space-between;font-size:12px"><span>✅ ${v} explored</span><span>🔮 ${w} dreams left</span></div><div class="dream-bar"><div class="dream-fill" style="width:${pct}%"></div></div><div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:center">${w} more adventures to unlock · ${total} total on the map</div>`;
+}
+
+// === INIT ===
+render();
+
+</script>
 </body>
 </html>
