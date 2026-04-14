@@ -919,17 +919,24 @@ document.getElementById('storyMode').addEventListener('touchend',e=>{
 });
 
 // === PLAY JOURNEY ===
+let playStop=false;
 document.getElementById('btnPlay').onclick=async()=>{
+  if(playStop){playStop=false;return}
   const sorted=[...P].filter(p=>p.date&&p.status!=='wishlist').sort((a,b)=>a.date.localeCompare(b.date));
   if(!sorted.length)return;
+  playStop=false;
   const jo=document.getElementById('jo');jo.style.display='block';
+  jo.innerHTML=`<div id="joN" style="font-size:16px;font-weight:700"></div><div id="joM" style="font-size:12px;color:var(--text2);margin-top:2px"></div><button id="joStop" style="margin-top:8px;padding:6px 20px;border-radius:12px;border:none;background:rgba(255,50,50,0.2);color:#ff4444;font-size:12px;font-weight:700;cursor:pointer">⏹ Stop</button>`;
+  document.getElementById('joStop').onclick=()=>{playStop=true};
   for(const p of sorted){
+    if(playStop)break;
     document.getElementById('joN').textContent=flag(p.country)+' '+p.name+', '+(p.country||'');
     document.getElementById('joM').textContent=(p.date?p.date.slice(0,4):'')+' · '+(p.memory||stE[p.status]||'');
-    map.flyTo([p.lat,p.lng],8,{duration:1.5});
+    if(map)map.flyTo([p.lat,p.lng],8,{duration:1.5});
     await new Promise(r=>setTimeout(r,2500));
   }
-  jo.style.display='none';map.flyTo([25,10],3,{duration:1});
+  jo.style.display='none';playStop=false;
+  if(map)map.flyTo([25,10],3,{duration:1});
 };
 
 // === STORY MODE BUTTON ===
