@@ -255,7 +255,7 @@ body.light .nav{background:rgba(248,249,251,0.9)}
     <div class="intro-card" onclick="goTab('vDiary')"><div style="font-size:24px">📖</div><div style="font-size:13px;font-weight:700;margin-top:2px">Life Diary</div><div style="font-size:9px;color:var(--text2)">7 chapters · Full story</div></div>
     <div class="intro-card" onclick="goTab('vFamily')"><div style="font-size:24px">👨‍👩‍👧</div><div style="font-size:13px;font-weight:700;margin-top:2px">Family</div><div style="font-size:9px;color:var(--text2)">Roots · Parents · Sacred places</div></div>
     <div class="intro-card" onclick="goTab('vList')"><div style="font-size:24px">📍</div><div style="font-size:13px;font-weight:700;margin-top:2px">All Places</div><div style="font-size:9px;color:var(--text2)">Browse · Filter · Explore</div></div>
-    <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnStory').click(),500)"><div style="font-size:24px">🎬</div><div style="font-size:13px;font-weight:700;margin-top:2px">Story Mode</div><div style="font-size:9px;color:var(--text2)">Cinematic slideshow</div></div>
+    <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnPlayGeo').click(),500)"><div style="font-size:24px">🌐</div><div style="font-size:13px;font-weight:700;margin-top:2px">East → West</div><div style="font-size:9px;color:var(--text2)">Country by country tour</div></div>
     <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnPlay').click(),500)"><div style="font-size:24px">▶️</div><div style="font-size:13px;font-weight:700;margin-top:2px">Play Journey</div><div style="font-size:9px;color:var(--text2)">Fly through my life</div></div>
     <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnRand').click(),500)"><div style="font-size:24px">🎲</div><div style="font-size:13px;font-weight:700;margin-top:2px">Random Memory</div><div style="font-size:9px;color:var(--text2)">Surprise yourself</div></div>
   </div>
@@ -285,7 +285,7 @@ body.light .nav{background:rgba(248,249,251,0.9)}
   <button class="fab fab-add" id="btnAdd">+</button>
   <button class="fab fab-play" id="btnPlay" title="Play Journey (Timeline)">▶</button>
   <button class="fab" id="btnPlayGeo" title="Play East → West" style="bottom:24px;right:122px;background:rgba(212,175,55,0.9);box-shadow:0 6px 20px var(--glow-gold);font-size:14px">🌐</button>
-  <button class="fab" id="btnStory" title="Story Mode" style="bottom:24px;right:176px;background:rgba(162,155,254,0.9);box-shadow:0 6px 20px rgba(162,155,254,0.3);font-size:14px">📖</button>
+  <button class="fab" id="btnStory" title="Story Mode" style="display:none" style="bottom:24px;right:176px;background:rgba(162,155,254,0.9);box-shadow:0 6px 20px rgba(162,155,254,0.3);font-size:14px">📖</button>
   <button class="fab fab-rand" id="btnRand" title="Random Memory">🎲</button>
   <div class="jo" id="jo"><div id="joN" style="font-size:16px;font-weight:700"></div><div id="joM" style="font-size:12px;color:var(--text2);margin-top:2px"></div></div>
 </div>
@@ -634,7 +634,7 @@ body.light .nav{background:rgba(248,249,251,0.9)}
       <div class="pm-acts">
         <button style="background:var(--card2);color:var(--text)" onclick="document.getElementById('pmOv').classList.remove('on')">Close</button>
         <button style="background:var(--accent);color:#fff" id="pmEdit">✏️ Edit</button>
-        <button style="background:var(--accent4);color:#fff" id="pmStory">📖 Story</button>
+        
       </div>
     </div>
   </div>
@@ -1063,7 +1063,7 @@ function renderList(){
   const el=document.getElementById('pCards');
   if(!list.length){el.innerHTML='<div class="empty"><span style="font-size:40px;display:block;margin-bottom:10px">🌍</span>No places yet.<br>Tap the map to start!</div>';return}
   el.innerHTML=list.map(p=>`<div class="pc" data-id="${p.id}"><div class="pc-top"><div><div class="pc-name">${stE[p.status]||'📍'} ${p.name}</div><div class="pc-sub">${flag(p.country)} ${p.country||''} ${p.date?'· '+p.date.slice(0,4):''}</div></div><span class="pc-badge" style="background:var(--glass)">${catE[p.cat]||'📍'} ${trE[p.travel]||''} ${p.visits>1?p.visits+'x':''}</span></div>${p.memory?`<div class="pc-note">✨ ${p.memory}</div>`:''}${p.company?`<div class="pc-note">🏢 ${p.company}</div>`:''}
-  <div class="pc-acts"><button onclick="event.stopPropagation();openEdit('${p.id}')" style="background:var(--card);color:var(--text)">✏️</button><button onclick="event.stopPropagation();if(confirm('Remove ${p.name}?')){P=P.filter(x=>x.id!=='${p.id}');render();renderList()}" style="background:rgba(255,50,50,.1);color:#f44">🗑️</button><button onclick="event.stopPropagation();openStory(${P.findIndex(x=>x.id===p.id)})" style="background:var(--accent4);color:#fff">📖</button></div></div>`).join('');
+  <div class="pc-acts"><button onclick="event.stopPropagation();openEdit('${p.id}')" style="background:var(--card);color:var(--text)">✏️</button><button onclick="event.stopPropagation();if(confirm('Remove ${p.name}?')){P=P.filter(x=>x.id!=='${p.id}');render();renderList()}" style="background:rgba(255,50,50,.1);color:#f44">🗑️</button></div></div>`).join('');
   el.querySelectorAll('.pc').forEach(c=>c.onclick=()=>{const p=P.find(x=>x.id===c.dataset.id);if(!p)return;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.v').forEach(x=>x.classList.remove('on'));document.querySelector('[data-v="vMap"]').classList.add('on');document.getElementById('vMap').classList.add('on');setTimeout(()=>{map.invalidateSize();map.flyTo([p.lat,p.lng],12,{duration:1});setTimeout(()=>showPM(p.id),1e3)},100)});
 }
 
