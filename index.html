@@ -1115,7 +1115,7 @@ try{
 function mkIcon(st){
   if(typeof L==='undefined')return null;
   const cls={visited:'marker-visited',lived:'marker-lived',birthplace:'marker-birth',transit:'marker-transit',wishlist:'marker-wish'}[st]||'marker-visited';
-  const sz=st==='lived'||st==='birthplace'?18:12;
+  const sz=st==='lived'||st==='birthplace'?10:7;
   return L.divIcon({className:'',html:`<div class="marker-pulse ${cls}" style="width:${sz}px;height:${sz}px"></div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
 }
 
