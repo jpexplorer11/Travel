@@ -285,6 +285,16 @@ button:active{transform:scale(0.95)}
 .growth-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#ff9ff3,var(--accent),var(--accent2));transition:width 1.5s ease-out}
 .growth-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-top:6px}
 
+/* Vault */
+.vault-lock{text-align:center;padding:40px 16px}
+.vault-lock input{padding:12px 20px;border-radius:14px;border:1px solid rgba(212,175,55,0.2);background:rgba(255,255,255,0.03);color:var(--text);font-size:16px;text-align:center;width:200px}
+.vault-lock button{margin-top:12px;padding:12px 32px;border-radius:14px;border:none;background:var(--accent);color:var(--bg);font-size:14px;font-weight:700;cursor:pointer}
+.vault-section{background:var(--card2);border-radius:16px;padding:16px;margin:10px 0;border:1px solid var(--glass)}
+.vault-section h4{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px}
+.vault-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--glass);font-size:13px}
+.vault-item:last-child{border:none}
+.vault-add{padding:8px 16px;border-radius:10px;border:1px dashed rgba(212,175,55,0.2);background:transparent;color:var(--accent);font-size:12px;cursor:pointer;width:100%;margin-top:8px}
+
 </style>
 </head>
 <body>
@@ -349,7 +359,7 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
     <div class="intro-card" onclick="goTab('vDiary')"><div style="font-size:22px">📖</div><div style="font-size:12px;font-weight:700;margin-top:2px">Life Diary</div><div style="font-size:9px;color:var(--text2)">7 chapters · Full story</div></div>
     <div class="intro-card" onclick="goTab('vChild')"><div style="font-size:22px">👧</div><div style="font-size:12px;font-weight:700;margin-top:2px">Adithi's World</div><div style="font-size:9px;color:var(--text2)">My daughter's journey</div></div>
     <div class="intro-card" onclick="goTab('vFamily')"><div style="font-size:22px">❤️</div><div style="font-size:12px;font-weight:700;margin-top:2px">Roots & More</div><div style="font-size:9px;color:var(--text2)">Family · Gurus · About Me</div></div>
-    <div class="intro-card" onclick="dismissIntro();setTimeout(()=>document.getElementById('btnPlay').click(),500)"><div style="font-size:22px">▶️</div><div style="font-size:12px;font-weight:700;margin-top:2px">Play Journey</div><div style="font-size:9px;color:var(--text2)">Fly through my life</div></div>
+    <div class="intro-card" onclick="goTab('vVault')"><div style="font-size:22px">🔐</div><div style="font-size:12px;font-weight:700;margin-top:2px">Private Vault</div><div style="font-size:9px;color:var(--text2)">Encrypted · Personal</div></div>
   </div>
 
   <!-- Overview -->
@@ -372,6 +382,7 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
       <button class="tab" data-v="vChild" data-c="#ff9ff3">👧 Chinni</button>
       <button class="tab" data-v="vDiary" data-c="#48dbfb">📖 Story</button>
       <button class="tab" data-v="vFamily" data-c="#ff9ff3">❤️ More</button>
+      <button class="tab" data-v="vVault" data-c="#D4AF37">🔐</button>
       <button class="tab" data-v="vList" data-c="#a29bfe" style="display:none">📍</button>
     </div>
     <button class="theme-btn" id="themeBtn">🌙</button>
@@ -894,6 +905,68 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
       <p style="font-size:12px;color:var(--text2);margin-top:8px;font-style:italic">"The next chapter of this journey is yours to write."</p>
     </div>
 
+  </div>
+</div>
+
+<!-- VAULT -->
+<div class="v" id="vVault">
+  <div style="padding:68px 16px 40px;max-width:540px;margin:0 auto">
+
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:36px">🔐</div>
+      <h2 style="font-size:24px;font-weight:800;color:var(--accent);margin-top:8px">Private Vault</h2>
+      <p style="font-size:12px;color:var(--text2)">Encrypted · Stored locally · Never uploaded</p>
+    </div>
+
+    <!-- Vault Lock -->
+    <div class="vault-lock" id="vaultLock">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Enter vault password to access</p>
+      <input type="password" id="vaultPw" placeholder="Vault PIN" onkeydown="if(event.key==='Enter')unlockVault()">
+      <br><button onclick="unlockVault()">🔓 Unlock</button>
+      <p id="vaultErr" style="color:#ff4444;font-size:12px;margin-top:8px;display:none">Wrong PIN</p>
+    </div>
+
+    <!-- Vault Content (hidden until unlocked) -->
+    <div id="vaultContent" style="display:none">
+
+      <!-- Properties -->
+      <div class="vault-section">
+        <h4>🏠 Properties</h4>
+        <div id="vaultProps"></div>
+        <button class="vault-add" onclick="addVaultItem('properties','🏠 Property','Location, details...')">+ Add Property</button>
+      </div>
+
+      <!-- Farms -->
+      <div class="vault-section">
+        <h4>🌾 Farms & Land</h4>
+        <div id="vaultFarms"></div>
+        <button class="vault-add" onclick="addVaultItem('farms','🌾 Farm/Land','Location, area, details...')">+ Add Farm/Land</button>
+      </div>
+
+      <!-- Finance Overview -->
+      <div class="vault-section">
+        <h4>💰 Finance Overview</h4>
+        <div id="vaultFinance"></div>
+        <button class="vault-add" onclick="addVaultItem('finance','💰 Item','Details...')">+ Add Finance Item</button>
+      </div>
+
+      <!-- Plans -->
+      <div class="vault-section">
+        <h4>📋 Plans & Goals</h4>
+        <div id="vaultPlans"></div>
+        <button class="vault-add" onclick="addVaultItem('plans','📋 Plan','Details...')">+ Add Plan</button>
+      </div>
+
+      <!-- Notes -->
+      <div class="vault-section">
+        <h4>📝 Private Notes</h4>
+        <div id="vaultNotes"></div>
+        <button class="vault-add" onclick="addVaultItem('notes','📝 Note','Write here...')">+ Add Note</button>
+      </div>
+
+      <button onclick="lockVault()" style="width:100%;padding:12px;border-radius:14px;border:none;background:rgba(255,50,50,0.1);color:#ff4444;font-size:13px;font-weight:700;cursor:pointer;margin-top:16px">🔒 Lock Vault</button>
+
+    </div>
   </div>
 </div>
 
@@ -1523,6 +1596,73 @@ document.getElementById('btnLoc').onclick=()=>{
   locMarker.bindPopup('<b>📍 Aachen, NRW — Germany 🇩🇪</b><br>Current home').openPopup();
   map.flyTo([lat,lng],12,{duration:1});
 };
+
+
+// === PRIVATE VAULT (encrypted localStorage) ===
+const VAULT_KEY='jp_vault_enc';
+const VAULT_PIN_HASH=-2101012122; // hash of vault PIN
+let vaultData=null;
+
+function simpleEncrypt(text,key){
+  let r='';for(let i=0;i<text.length;i++)r+=String.fromCharCode(text.charCodeAt(i)^key.charCodeAt(i%key.length));
+  return btoa(r);
+}
+function simpleDecrypt(enc,key){
+  try{const d=atob(enc);let r='';for(let i=0;i<d.length;i++)r+=String.fromCharCode(d.charCodeAt(i)^key.charCodeAt(i%key.length));return r}catch(e){return null}
+}
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i)|0;return h}
+
+function unlockVault(){
+  const pw=document.getElementById('vaultPw').value;
+  if(hashStr(pw)!==VAULT_PIN_HASH){document.getElementById('vaultErr').style.display='block';return}
+  document.getElementById('vaultErr').style.display='none';
+  // Decrypt vault data
+  const enc=localStorage.getItem(VAULT_KEY);
+  if(enc){const dec=simpleDecrypt(enc,pw);vaultData=dec?JSON.parse(dec):{properties:[],farms:[],finance:[],plans:[],notes:[]}}
+  else{vaultData={properties:[],farms:[],finance:[],plans:[],notes:[]}}
+  document.getElementById('vaultLock').style.display='none';
+  document.getElementById('vaultContent').style.display='block';
+  renderVault();
+}
+
+function lockVault(){
+  document.getElementById('vaultLock').style.display='block';
+  document.getElementById('vaultContent').style.display='none';
+  document.getElementById('vaultPw').value='';
+  vaultData=null;
+}
+
+function saveVault(){
+  const pw=document.getElementById('vaultPw').value||sessionStorage.getItem('vp')||'';
+  if(!pw||!vaultData)return;
+  sessionStorage.setItem('vp',pw);
+  const enc=simpleEncrypt(JSON.stringify(vaultData),pw);
+  localStorage.setItem(VAULT_KEY,enc);
+}
+
+function renderVault(){
+  if(!vaultData)return;
+  ['properties','farms','finance','plans','notes'].forEach(cat=>{
+    const el=document.getElementById('vault'+cat.charAt(0).toUpperCase()+cat.slice(1));
+    if(!el)return;
+    const items=vaultData[cat]||[];
+    el.innerHTML=items.map((item,i)=>`<div class="vault-item"><div><strong>${item.title}</strong><br><span style="color:var(--text2);font-size:11px">${item.detail}</span></div><button onclick="deleteVaultItem('${cat}',${i})" style="background:none;border:none;color:#ff4444;cursor:pointer;font-size:14px">✕</button></div>`).join('')||'<p style="font-size:12px;color:var(--text2);padding:4px">No items yet</p>';
+  });
+}
+
+function addVaultItem(cat,defTitle,defDetail){
+  const title=prompt('Title:',defTitle);if(!title)return;
+  const detail=prompt('Details:',defDetail)||'';
+  if(!vaultData[cat])vaultData[cat]=[];
+  vaultData[cat].push({title,detail,date:new Date().toISOString().slice(0,10)});
+  saveVault();renderVault();
+}
+
+function deleteVaultItem(cat,idx){
+  if(!confirm('Delete this item?'))return;
+  vaultData[cat].splice(idx,1);
+  saveVault();renderVault();
+}
 
 // === INIT ===
 render();
