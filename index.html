@@ -1210,6 +1210,34 @@ const SEED_DATA = [
 const K='myTravelPlaces';
 let P=JSON.parse(localStorage.getItem(K)||'[]');
 if(typeof SEED_DATA!=='undefined'){P=[...SEED_DATA];localStorage.setItem(K,JSON.stringify(P))}
+
+// === GOOGLE SHEET SYNC ===
+const SHEET_URL=''; // Set your published Google Sheet CSV URL here
+function loadFromSheet(){
+  if(!SHEET_URL)return;
+  fetch(SHEET_URL).then(r=>r.text()).then(csv=>{
+    const lines=csv.split('\n');
+    const headers=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
+    const newP=[];
+    for(let i=1;i<lines.length;i++){
+      if(!lines[i].trim())continue;
+      const vals=lines[i].match(/(".*?"|[^,]+)/g)||[];
+      const obj={};
+      headers.forEach((h,j)=>{obj[h]=(vals[j]||'').replace(/^"|"$/g,'').trim()});
+      if(!obj.name)continue;
+      obj.lat=parseFloat(obj.lat)||0;obj.lng=parseFloat(obj.lng)||0;
+      obj.visits=parseInt(obj.visits)||1;obj.rating=parseInt(obj.rating)||3;
+      obj.public=obj.public!=='false';
+      if(obj.photo_url)obj.photo=obj.photo_url;
+      newP.push(obj);
+    }
+    if(newP.length>10){
+      P=newP;localStorage.setItem(K,JSON.stringify(P));
+      render();console.log('Loaded '+P.length+' places from Google Sheet');
+    }
+  }).catch(e=>console.log('Sheet offline, using local data'));
+}
+loadFromSheet();
 let M={},editId=null,pending=null,pathLine=null;
 const save=()=>localStorage.setItem(K,JSON.stringify(P));
 
