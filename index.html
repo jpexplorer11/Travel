@@ -237,6 +237,17 @@ body.light .nav{background:rgba(248,249,251,0.9)}
 .chapter:hover{transform:translateX(6px);box-shadow:0 6px 20px rgba(0,0,0,0.2)}
 .citem:hover{transform:translateX(4px);background:rgba(255,255,255,0.06)}
 
+/* Micro-interactions */
+.intro-card,.card,.chapter,.citem,.pc,.pm{transition:transform .25s ease,box-shadow .25s ease}
+.intro-card:active,.card:active,.chapter:active,.pc:active{transform:scale(0.97)}
+button{transition:transform .15s ease}
+button:active{transform:scale(0.95)}
+/* Ripple */
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+/* Smooth page transitions */
+.v{opacity:0;transform:translateY(8px);transition:opacity .35s ease,transform .35s ease}
+.v.on{opacity:1;transform:translateY(0)}
+
 </style>
 </head>
 <body>
@@ -290,11 +301,11 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
   <div><h1>JP Explorer</h1><div class="sub">🌍 20 Countries · 120+ Memories · Born Explorer ♐</div></div>
   <div class="nav-r">
     <div class="tabs">
-      <button class="tab on" data-v="vMap" data-c="#2EC4B6">🗺️</button>
-      <button class="tab" data-v="vJourney" data-c="#D4AF37">⏳</button>
-      <button class="tab" data-v="vDiary" data-c="#48dbfb">📖</button>
-      <button class="tab" data-v="vFamily" data-c="#ff9ff3">👨‍👩‍👧</button>
-      <button class="tab" data-v="vList" data-c="#a29bfe">📍</button>
+      <button class="tab on" data-v="vMap" data-c="#2EC4B6">🗺️ Map</button>
+      <button class="tab" data-v="vJourney" data-c="#D4AF37">⏳ Journey</button>
+      <button class="tab" data-v="vDiary" data-c="#48dbfb">📖 Story</button>
+      <button class="tab" data-v="vFamily" data-c="#ff9ff3">❤️ More</button>
+      <button class="tab" data-v="vList" data-c="#a29bfe" style="display:none">📍</button>
     </div>
     <button class="theme-btn" id="themeBtn">🌙</button>
   </div>
@@ -477,9 +488,44 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
       <div style="background:var(--card2);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass)"><div style="font-size:20px">🏙️</div><div style="font-size:13px;font-weight:700;margin-top:4px">Bangalore</div><div style="font-size:10px;color:var(--text2)">Roopa's home · JP's decade</div></div>
     </div>
 
+
+    <div style="margin-top:24px;background:linear-gradient(135deg,rgba(212,175,55,0.06),rgba(255,159,243,0.04));border-radius:20px;padding:20px;border:1px solid rgba(212,175,55,0.1)">
+      <div style="text-align:center;font-size:28px">💌</div>
+      <h3 style="text-align:center;font-size:18px;font-weight:800;color:var(--accent);margin-top:8px">A Letter to My Daughter</h3>
+      <p style="font-size:14px;color:var(--text2);margin-top:14px;line-height:1.8;font-style:italic;text-align:center">
+        "My dear little one,
+      </p>
+      <p style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.8">
+        By the time you read this, you'll know that your dad traveled the world — from a small town called Chitradurga to 20 countries across 4 continents. But what I want you to know is not where I went, but what I learned.
+      </p>
+      <p style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.8">
+        I learned that <strong style="color:var(--text)">every setback is a setup for a comeback</strong>. I lost jobs, faced fears, started over in new countries — and each time, life got better.
+      </p>
+      <p style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.8">
+        I learned that <strong style="color:var(--text)">home is not a place — it's the people you love</strong>. Your grandparents in Tumkur, your aunt in Bangalore, and you — wherever you are, that's my home.
+      </p>
+      <p style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.8">
+        I learned that <strong style="color:var(--text)">the world is big, beautiful, and waiting for you</strong>. One day, I'll take you to Mont Blanc, to Yosemite, to Lake Tahoe in winter. And you'll understand why your dad couldn't stop exploring.
+      </p>
+      <p style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.8">
+        But most of all, I want you to know: <strong style="color:var(--accent)">you are the best place I've ever been</strong>. ❤️
+      </p>
+      <p style="font-size:14px;color:var(--text2);margin-top:14px;text-align:right;font-style:italic">
+        — Your Dad, the Born Explorer ♐
+      </p>
+    </div>
+
     <div style="text-align:center;padding:20px;margin:24px 0;background:var(--card2);border-radius:16px;border:1px solid var(--glass)">
       <p style="font-size:16px;font-style:italic;color:var(--text2)">"No matter how far I travel, my roots are in Tumkur, my strength is my family, and my compass is their love."</p>
       <p style="margin-top:10px;font-size:14px">🙏 Dedicated to Appa & Amma</p>
+    </div>
+
+    <div style="margin-top:24px">
+      <h3 style="font-size:16px;font-weight:800;color:var(--accent2);margin-bottom:10px">📍 Quick Links</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="intro-card" onclick="document.querySelector('[data-v=vList]').click()"><div style="font-size:20px">📍</div><div style="font-size:12px;font-weight:700;margin-top:2px">All Places</div><div style="font-size:9px;color:var(--text2)">Browse · Filter · Search</div></div>
+        <div class="intro-card" onclick="dismissIntro&&false;document.getElementById('btnPlay').click()"><div style="font-size:20px">▶️</div><div style="font-size:12px;font-weight:700;margin-top:2px">Play Journey</div><div style="font-size:9px;color:var(--text2)">Fly through my life</div></div>
+      </div>
     </div>
 
   </div>
@@ -638,6 +684,7 @@ if(sessionStorage.getItem('jp_auth')==='1')document.getElementById('pwScreen').s
 <!-- LIST -->
 <div class="v" id="vList">
   <div class="list-v">
+    <input type="text" id="placeSearch" placeholder="🔍 Search places..." style="width:100%;padding:10px 14px;border-radius:14px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:var(--text);font-size:14px;margin-bottom:8px" oninput="renderList()">
     <div class="filters" id="fltrs"></div>
     <div id="pCards"></div>
   </div>
@@ -1082,6 +1129,8 @@ function renderList(){
   document.getElementById('fltrs').innerHTML=fs.map(f=>`<button class="fbtn ${filt===f?'on':''}" data-f="${f}">${f==='all'?'All':(stE[f]||'')+' '+f}</button>`).join('');
   document.querySelectorAll('.fbtn').forEach(b=>b.onclick=()=>{filt=b.dataset.f;renderList()});
   let list=filt==='all'?P:P.filter(p=>(p.status||'visited')===filt);
+  const sq=(document.getElementById('placeSearch')?.value||'').toLowerCase();
+  if(sq)list=list.filter(p=>(p.name+p.country+p.memory+(p.chapter||'')).toLowerCase().includes(sq));
   list=[...list].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const el=document.getElementById('pCards');
   if(!list.length){el.innerHTML='<div class="empty"><span style="font-size:40px;display:block;margin-bottom:10px">🌍</span>No places yet.<br>Tap the map to start!</div>';return}
